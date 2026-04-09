@@ -13,6 +13,8 @@
  *   OWS_RPC_URL   — Arc testnet RPC (default: https://rpc.testnet.arc.network)
  */
 
+import fs from "fs";
+import path from "path";
 import {
   createWalletClient,
   createPublicClient,
@@ -26,6 +28,18 @@ import { mnemonicToAccount } from "viem/accounts";
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
+
+const envPath = path.resolve(process.cwd(), ".env");
+if (fs.existsSync(envPath)) {
+  const envText = fs.readFileSync(envPath, "utf8");
+  for (const line of envText.split(/\r?\n/)) {
+    if (!line || line.trim().startsWith("#") || !line.includes("=")) continue;
+    const idx = line.indexOf("=");
+    const key = line.slice(0, idx).trim();
+    const value = line.slice(idx + 1);
+    if (!(key in process.env)) process.env[key] = value;
+  }
+}
 
 const RPC_URL = process.env.OWS_RPC_URL || "https://rpc.testnet.arc.network";
 
@@ -153,16 +167,20 @@ Commands:
   all     [--amount N]    Approve + deposit + balance check
 
 Options:
-  --mnemonic <phrase>     Wallet mnemonic (or set OWS_MNEMONIC env)
+  --mnemonic <phrase>     Wallet mnemonic (or set OWS_MNEMONIC / X402_MNEMONIC / local .env)
   --amount <usdc>         Amount of USDC to deposit (default: 10)
 
 Environment:
-  OWS_MNEMONIC            BIP-39 mnemonic
-  OWS_RPC_URL             RPC endpoint (default: https://rpc.testnet.arc.network)`);
+  OWS_MNEMONIC            Primary BIP-39 mnemonic
+  X402_MNEMONIC           Alternate mnemonic env name
+  OWS_RPC_URL             RPC endpoint (default: https://rpc.testnet.arc.network)
+
+Notes:
+  setup.mjs auto-loads a local .env file from the current working directory when present.`);
     process.exit(0);
   }
 
-  let mnemonic = process.env.OWS_MNEMONIC;
+  let mnemonic = process.env.OWS_MNEMONIC || process.env.X402_MNEMONIC;
   let amount = 10;
 
   for (let i = 1; i < args.length; i++) {
@@ -171,7 +189,7 @@ Environment:
   }
 
   if (!mnemonic) {
-    console.error("Error: OWS_MNEMONIC env var or --mnemonic flag is required.");
+    console.error("Error: mnemonic not found. Set OWS_MNEMONIC or X402_MNEMONIC, use a local .env, or pass --mnemonic.");
     process.exit(1);
   }
 

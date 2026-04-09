@@ -15,6 +15,8 @@
  *   OWS_CHAIN_ID  — Preferred chain ID (default: 5042002)
  */
 
+import fs from "fs";
+import path from "path";
 import { wrapFetchWithPayment, x402Client } from "@x402/fetch";
 import { toClientEvmSigner } from "@x402/evm";
 import { createWalletClient, createPublicClient, http, getAddress } from "viem";
@@ -23,6 +25,18 @@ import { mnemonicToAccount } from "viem/accounts";
 // ---------------------------------------------------------------------------
 // Config
 // ---------------------------------------------------------------------------
+
+const envPath = path.resolve(process.cwd(), ".env");
+if (fs.existsSync(envPath)) {
+  const envText = fs.readFileSync(envPath, "utf8");
+  for (const line of envText.split(/\r?\n/)) {
+    if (!line || line.trim().startsWith("#") || !line.includes("=")) continue;
+    const idx = line.indexOf("=");
+    const key = line.slice(0, idx).trim();
+    const value = line.slice(idx + 1);
+    if (!(key in process.env)) process.env[key] = value;
+  }
+}
 
 const RPC_URL = process.env.OWS_RPC_URL || "https://rpc.testnet.arc.network";
 const PREFERRED_CHAIN = `eip155:${process.env.OWS_CHAIN_ID || "5042002"}`;
