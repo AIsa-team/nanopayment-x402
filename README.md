@@ -77,12 +77,43 @@ export OWS_MNEMONIC="your twelve word mnemonic phrase here"
 # Scholar search
 node scripts/x402_client.mjs POST "https://api.aisa.one/apis/v2/scholar/search/scholar?query=AI" --body '{}'
 
-# Polymarket markets
-node scripts/x402_client.mjs GET "https://api.aisa.one/apis/v2/polymarket/markets?search=election"
+# Polymarket markets (status is required when using search)
+node scripts/x402_client.mjs GET "https://api.aisa.one/apis/v2/polymarket/markets?search=election&status=open"
 
 # Tavily search
 node scripts/x402_client.mjs POST "https://api.aisa.one/apis/v2/tavily/search" --body '{"query":"latest AI news"}'
+
+# Twitter user info (use userName, not screen_name)
+node scripts/x402_client.mjs GET "https://api.aisa.one/apis/v2/twitter/user/info?userName=jack"
+
+# Twitter recent tweets
+node scripts/x402_client.mjs GET "https://api.aisa.one/apis/v2/twitter/user/last_tweets?userName=jack"
+
+# Kalshi markets (status is required when using search)
+node scripts/x402_client.mjs GET "https://api.aisa.one/apis/v2/kalshi/markets?search=election&status=open"
+
+# Financial statements
+node scripts/x402_client.mjs GET "https://api.aisa.one/apis/v2/financial/financials/income-statements?ticker=AAPL"
+node scripts/x402_client.mjs GET "https://api.aisa.one/apis/v2/financial/financials?ticker=AAPL"
+
+# Scholar mixed search
+node scripts/x402_client.mjs POST "https://api.aisa.one/apis/v2/scholar/search/mixed?query=bitcoin" --body '{}'
+
+# Perplexity (model is required in the JSON body)
+node scripts/x402_client.mjs POST "https://api.aisa.one/apis/v2/perplexity/sonar" --body '{"model":"sonar","messages":[{"role":"user","content":"What is Bitcoin? Keep it brief."}]}'
+
+# YouTube search (requires both q and engine)
+node scripts/x402_client.mjs GET "https://api.aisa.one/apis/v2/youtube/search?q=bitcoin&engine=youtube"
 ```
+
+Known request-shape caveats from live testing:
+
+- Twitter user endpoints require `userName`, not `screen_name`
+- Polymarket and Kalshi search require `status=open|closed`
+- Perplexity endpoints require `model` in the JSON body
+- YouTube search requires both `q` and `engine=youtube`
+- `scholar/search/explain` is a follow-up endpoint that requires `search_id` in the body
+- `matching-markets/sports` requires `kalshi_ticker` or `polymarket_market_slug`
 
 The client outputs JSON to stdout (for piping) and status info to stderr.
 
@@ -183,7 +214,7 @@ For the complete catalog with all endpoints, see [SKILL.md](./SKILL.md#full-x402
 | `invalid_signature` | Use `extra.verifyingContract` from the 402 response as the EIP-712 domain `verifyingContract`, not the asset address |
 | `insufficient_balance` | Deposit USDC into the Gateway contract via `deposit()` |
 | `UnsupportedChain` (ows CLI) | Use the JS client — `ows pay request` has a known issue matching EVM testnet chain IDs |
-| `500 Invalid price: $0.000000` | Server-side pricing bug — free endpoints ($0) should still be processed as regular x402 payments |
+| `500 Invalid price: $0.000000` | Some free endpoints ($0) error on x402 — use API key auth for those |
 
 ## Resources
 
