@@ -2,7 +2,7 @@
 
 Pay-per-call API access to AIsa endpoints using the [x402](https://www.x402.org/) HTTP payment protocol. No API key needed — pay with USDC on [Arc testnet](https://testnet.arcscan.app/) via [Circle Gateway](https://www.circle.com/gateway).
 
-**78 endpoints** across Twitter, Financial, Search, Scholar, Perplexity, and YouTube. Prices range from $0.00044 to $0.12 per call.
+**79 endpoints** across Twitter, Financial, Search, Scholar, Perplexity, and YouTube. Prices range from $0.00044 to $0.12 per call.
 
 ## How It Works
 
@@ -45,7 +45,7 @@ node scripts/x402_client.mjs GET "https://api.aisa.one/apis/v2/twitter/user/info
 ## Documentation
 
 - **[SKILL.md](./SKILL.md)** — Full agent instructions, decision flow, examples, error handling, and guardrails
-- **[references/endpoint-catalog.md](./references/endpoint-catalog.md)** — Complete priced catalog of all 78 endpoints
+- **[references/endpoint-catalog.md](./references/endpoint-catalog.md)** — Complete priced catalog of all 79 endpoints
 - **[references/troubleshooting.md](./references/troubleshooting.md)** — Extended failure diagnostics
 - **[references/setup.md](./references/setup.md)** — Environment and runtime notes
 
