@@ -106,6 +106,38 @@ node scripts/x402_client.mjs POST "https://api.aisa.one/apis/v2/perplexity/sonar
 node scripts/x402_client.mjs GET "https://api.aisa.one/apis/v2/youtube/search?q=bitcoin&engine=youtube"
 ```
 
+### 5. View Transaction History
+
+Compile on-chain and off-chain spending activity for your wallet:
+
+**On-chain transactions** (approve, deposit):
+
+```bash
+# Get total transaction count
+curl -s -X POST https://rpc.testnet.arc.network \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"eth_getTransactionCount","params":["<WALLET_ADDRESS>","latest"]}'
+
+# Fetch a specific transaction receipt
+curl -s -X POST https://rpc.testnet.arc.network \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"eth_getTransactionReceipt","params":["<TX_HASH>"]}'
+```
+
+Receipt fields: `transactionHash`, `blockNumber` (hex), `status` (`0x1` = success), `gasUsed` (hex), `to` (contract address). Known contracts:
+- `0x3600000000000000000000000000000000000000` — USDC Token (approve txs)
+- `0x0077777d7eba4688bdef3e311b846f25870a19b9` — Gateway (deposit txs)
+
+**Off-chain x402 API costs:** Each API call's cost is listed in [references/endpoint-catalog.md](./references/endpoint-catalog.md). Track endpoint, price, and total spend across calls.
+
+**Current balance:**
+
+```bash
+node scripts/setup.mjs balance
+```
+
+This shows ERC-20 USDC in wallet, Gateway allowance, and remaining Gateway deposit.
+
 Known request-shape caveats from live testing:
 
 - Twitter user endpoints require `userName`, not `screen_name`
