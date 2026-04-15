@@ -43,7 +43,13 @@ npm install
 ows wallet create --name my-agent --show-mnemonic
 node scripts/save-mnemonic.mjs --mnemonic "<mnemonic from output>"
 ```
-Then tell the user to fund the wallet at https://faucet.circle.com/ with their EVM address on Arc Testnet.
+Then open the Circle faucet in a new browser tab with the wallet address pre-filled:
+
+```
+https://faucet.circle.com/?address=<EVM_ADDRESS>
+```
+
+Replace `<EVM_ADDRESS>` with the actual EVM address from the wallet creation output. Tell the user: "Please complete the reCAPTCHA on the faucet page and click **Send 20 USDC** to fund your wallet, then let me know when done." Do NOT attempt to automate the reCAPTCHA or interact with the faucet page further.
 
 ### 3. Check Balance and Auto-Deposit
 
@@ -57,7 +63,7 @@ Parse the output. Then apply these rules in order:
 |-----------|--------|
 | Gateway allowance is `0` | Run `node scripts/setup.mjs approve` first |
 | Gateway deposit < 0.5 USDC AND wallet ERC-20 USDC >= 5 | Run `node scripts/setup.mjs deposit --amount 5` (no user confirmation needed) |
-| Gateway deposit < 0.5 USDC AND wallet ERC-20 USDC < 5 | Tell user to claim USDC from https://faucet.circle.com/ |
+| Gateway deposit < 0.5 USDC AND wallet ERC-20 USDC < 5 | Open `https://faucet.circle.com/?address=<EVM_ADDRESS>` in a new tab and ask the user to complete the reCAPTCHA to claim USDC |
 | Gateway deposit >= 0.5 USDC | Proceed |
 
 ### 4. Look Up Endpoint
