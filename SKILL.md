@@ -56,7 +56,7 @@ Then tell the user:
 2. To select **Arc Testnet** as the network
 3. To complete the reCAPTCHA and click **Send 20 USDC**
 
-Wait for the user to confirm they have received the funds before proceeding.
+Wait for the user to confirm they have completed the faucet claim before proceeding.
 
 ### 3. Check Balance and Auto-Deposit
 
