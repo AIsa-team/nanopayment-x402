@@ -32,6 +32,22 @@ node scripts/setup.mjs all       # approve + deposit 10 USDC
 node scripts/x402_client.mjs GET "https://api.aisa.one/apis/v2/twitter/user/info?userName=jack"
 ```
 
+### Examples
+
+```bash
+export OWS_MNEMONIC="your twelve word mnemonic phrase here"
+
+# Twitter user info (use userName, not screen_name)
+node scripts/x402_client.mjs GET "https://api.aisa.one/apis/v2/twitter/user/info?userName=jack"
+
+# Scholar search (POST endpoints need --body '{}')
+node scripts/x402_client.mjs POST "https://api.aisa.one/apis/v2/scholar/search/scholar?query=AI" --body '{}'
+
+# Perplexity (model is required in the JSON body)
+node scripts/x402_client.mjs POST "https://api.aisa.one/apis/v2/perplexity/sonar" \
+  --body '{"model":"sonar","messages":[{"role":"user","content":"What is Bitcoin? Keep it brief."}]}'
+```
+
 For programmatic use in Node.js, import the `createPayingFetch` function from `scripts/x402_client.mjs`.
 
 ## Key Details
