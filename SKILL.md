@@ -1,11 +1,11 @@
 ---
 name: arc-x402
-description: Access AIsa x402-paid /apis/v2/ endpoints using Arc testnet USDC and Circle Gateway. Use when setting up x402 payments, creating or funding an Arc wallet, depositing into Circle Gateway, picking the right AIsa endpoint for a task, estimating per-call cost, or making paid AIsa API calls without an API key. 78 endpoints across Twitter, Financial, Search, Scholar, Perplexity, and YouTube categories.
+description: Access AIsa x402-paid /apis/v2/ endpoints using Arc testnet USDC and Circle Gateway. Use when setting up x402 payments, creating or funding an Arc wallet, depositing into Circle Gateway, picking the right AIsa endpoint for a task, estimating per-call cost, or making paid AIsa API calls without an API key. 79 endpoints across Twitter, Financial, Search, Scholar, Perplexity, and YouTube categories.
 ---
 
 # arc-x402
 
-Pay-per-call API access to 78 AIsa endpoints via the x402 HTTP payment protocol. No API key needed — pays with USDC on Arc testnet via Circle Gateway.
+Pay-per-call API access to 79 AIsa endpoints via the x402 HTTP payment protocol. No API key needed — pays with USDC on Arc testnet via Circle Gateway.
 
 ## Quick Reference
 
@@ -99,11 +99,17 @@ Parse the output. Then apply these rules in order:
 **Cost confirmation rule**: If price >= $0.036/call, confirm with the user before calling. Expensive endpoints:
 - `twitter/user/followers` ($0.036)
 - `twitter/user/followings` ($0.036)
-- `financial/analyst-estimates` ($0.048)
+- `financial/analyst-estimates` ($0.120)
 - `financial/earnings/press-releases` ($0.048)
+- `financial/financial-metrics` ($0.048)
+- `financial/financial-metrics/snapshot` ($0.048)
 - `financial/financials/income-statements` ($0.048)
 - `financial/financials/balance-sheets` ($0.048)
 - `financial/financials/cash-flow-statements` ($0.048)
+- `financial/financials/segmented-revenues` ($0.048)
+- `financial/insider-trades` ($0.048)
+- `financial/institutional-ownership` ($0.048)
+- `financial/news` ($0.048)
 - `financial/financials` ($0.120) — prefer individual statement endpoints at $0.048 unless user needs all three
 
 **Loop cost rule**: Before looping calls, calculate `count * price` and tell the user the total estimated cost. Wait for confirmation.
@@ -159,6 +165,6 @@ After fixing any error, retry the original request once.
 | `scripts/save-mnemonic.mjs` | Persist mnemonic to local `.env` |
 | `scripts/setup.mjs` | Balance check, ERC-20 approve, Gateway deposit |
 | `scripts/x402_client.mjs` | Make paid x402 API requests |
-| `references/endpoint-catalog.md` | All 78 endpoints with prices — authoritative source |
+| `references/endpoint-catalog.md` | All 79 endpoints with prices — authoritative source |
 | `references/setup.md` | Environment and runtime notes |
 | `references/troubleshooting.md` | Extended failure diagnostics |

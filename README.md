@@ -157,15 +157,15 @@ All endpoints use base URL `https://api.aisa.one` with `/apis/v2/` paths.
 | `/apis/v2/matching-markets/sports` | $0.01000 |
 | ... and 16 more | |
 
-### Financial (23 endpoints)
+### Financial (22 endpoints)
 
 | Endpoint | Price |
 |----------|------:|
-| `/apis/v2/financial/company/facts` | $0.00000 |
-| `/apis/v2/financial/prices` | $0.01200 |
+| `/apis/v2/financial/analyst-estimates` | $0.12000 |
+| `/apis/v2/financial/prices` | $0.02400 |
 | `/apis/v2/financial/financials/income-statements` | $0.04800 |
 | `/apis/v2/financial/financials` (all statements) | $0.12000 |
-| ... and 19 more | |
+| ... and 18 more | |
 
 ### Scholar & Search (4 endpoints)
 
@@ -191,7 +191,7 @@ All endpoints use base URL `https://api.aisa.one` with `/apis/v2/` paths.
 |----------|------:|
 | `/apis/v2/youtube/search` | $0.00240 |
 
-For the complete priced catalog of all 80 endpoints, see [references/endpoint-catalog.md](./references/endpoint-catalog.md).
+For the complete priced catalog of all 79 endpoints, see [references/endpoint-catalog.md](./references/endpoint-catalog.md).
 
 ## Key Details
 
