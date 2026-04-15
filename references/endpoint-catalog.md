@@ -7,7 +7,7 @@ description: Complete catalog of AIsa x402-paid /apis/v2/ endpoints with per-cal
 
 All endpoints use base URL `https://api.aisa.one` with the `/apis/v2/` path prefix. Prices are per call, charged in USDC via the x402 payment flow (Arc testnet, Circle Gateway settlement). Do not confuse `/apis/v1/` (API-key) with `/apis/v2/` (x402-paid).
 
-**Totals:** 80 endpoints across 6 categories.
+**Totals:** 78 endpoints across 6 categories.
 
 ## Twitter (28 endpoints)
 
@@ -75,7 +75,7 @@ Category ID: 2 | Provider: Tavily / Dome
 
 Notes: Polymarket and Kalshi search require `status=open|closed`. `matching-markets/sports` requires `kalshi_ticker` or `polymarket_market_slug`.
 
-## Financial (23 endpoints)
+## Financial (21 endpoints)
 
 Category ID: 3 | Provider: Financial
 
@@ -83,27 +83,25 @@ Category ID: 3 | Provider: Financial
 |---|------|------|------------:|
 | 1 | Earnings Per Share / Analyst Estimates | `/apis/v2/financial/analyst-estimates` | $0.048000 |
 | 2 | Company Facts (by ticker) | `/apis/v2/financial/company/facts` | $0.024000 |
-| 3 | Crypto Prices Historical | `/apis/v2/financial/crypto/prices` | $0.012000 |
-| 4 | Crypto Prices Snapshot | `/apis/v2/financial/crypto/prices/snapshot` | $0.012000 |
-| 5 | Earnings Press Releases (by ticker) | `/apis/v2/financial/earnings/press-releases` | $0.048000 |
-| 6 | Financial Metrics Historical | `/apis/v2/financial/financial-metrics` | $0.024000 |
-| 7 | Financial Metrics Snapshot | `/apis/v2/financial/financial-metrics/snapshot` | $0.024000 |
-| 8 | Income Statements | `/apis/v2/financial/financials/income-statements` | $0.048000 |
-| 9 | Balance Sheets | `/apis/v2/financial/financials/balance-sheets` | $0.048000 |
-| 10 | Cash Flow Statements | `/apis/v2/financial/financials/cash-flow-statements` | $0.048000 |
-| 11 | All Financial Statements (by ticker) | `/apis/v2/financial/financials` | $0.120000 |
-| 12 | Insider Trades (by ticker) | `/apis/v2/financial/insider-trades` | $0.024000 |
-| 13 | Institutional Ownership | `/apis/v2/financial/institutional-ownership` | $0.024000 |
-| 14 | Historical Interest Rates | `/apis/v2/financial/macro/interest-rates` | $0.012000 |
-| 15 | Latest Interest Rates | `/apis/v2/financial/macro/interest-rates/snapshot` | $0.012000 |
-| 16 | Company News | `/apis/v2/financial/news` | $0.024000 |
-| 17 | Stock Screener | `/apis/v2/financial/financials/search/screener` | $0.012000 |
-| 18 | Search Financials (line items) | `/apis/v2/financial/financials/search/line-items` | $0.012000 |
-| 19 | SEC Filings (by company) | `/apis/v2/financial/filings` | $0.024000 |
-| 20 | SEC Filing Raw Items | `/apis/v2/financial/filings/items` | $0.024000 |
-| 21 | Segmented Revenue | `/apis/v2/financial/financials/segmented-revenues` | $0.024000 |
-| 22 | Stock Prices Historical | `/apis/v2/financial/prices` | $0.012000 |
-| 23 | Stock Prices Snapshot | `/apis/v2/financial/prices/snapshot` | $0.012000 |
+| 3 | Earnings Press Releases (by ticker) | `/apis/v2/financial/earnings/press-releases` | $0.048000 |
+| 4 | Financial Metrics Historical | `/apis/v2/financial/financial-metrics` | $0.024000 |
+| 5 | Financial Metrics Snapshot | `/apis/v2/financial/financial-metrics/snapshot` | $0.024000 |
+| 6 | Income Statements | `/apis/v2/financial/financials/income-statements` | $0.048000 |
+| 7 | Balance Sheets | `/apis/v2/financial/financials/balance-sheets` | $0.048000 |
+| 8 | Cash Flow Statements | `/apis/v2/financial/financials/cash-flow-statements` | $0.048000 |
+| 9 | All Financial Statements (by ticker) | `/apis/v2/financial/financials` | $0.120000 |
+| 10 | Insider Trades (by ticker) | `/apis/v2/financial/insider-trades` | $0.024000 |
+| 11 | Institutional Ownership | `/apis/v2/financial/institutional-ownership` | $0.024000 |
+| 12 | Historical Interest Rates | `/apis/v2/financial/macro/interest-rates` | $0.012000 |
+| 13 | Latest Interest Rates | `/apis/v2/financial/macro/interest-rates/snapshot` | $0.012000 |
+| 14 | Company News | `/apis/v2/financial/news` | $0.024000 |
+| 15 | Stock Screener | `/apis/v2/financial/financials/search/screener` | $0.012000 |
+| 16 | Search Financials (line items) | `/apis/v2/financial/financials/search/line-items` | $0.012000 |
+| 17 | SEC Filings (by company) | `/apis/v2/financial/filings` | $0.024000 |
+| 18 | SEC Filing Raw Items | `/apis/v2/financial/filings/items` | $0.024000 |
+| 19 | Segmented Revenue | `/apis/v2/financial/financials/segmented-revenues` | $0.024000 |
+| 20 | Stock Prices Historical | `/apis/v2/financial/prices` | $0.012000 |
+| 21 | Stock Prices Snapshot | `/apis/v2/financial/prices/snapshot` | $0.012000 |
 
 Notes: there are currently no free endpoints in the catalog. If the server ever returns `Invalid price: $0.000000`, treat it as an upstream pricing bug, not an auth-mode switch.
 
@@ -158,7 +156,7 @@ Notes: Requires both `q` and `engine=youtube`.
 | $0.007000 | $0.007000 | 1 |
 | $0.009600 | $0.009600 | 4 |
 | $0.010000 | $0.010000 | 17 |
-| $0.012000 | $0.012000 | 12 |
+| $0.012000 | $0.012000 | 10 |
 | $0.024000 | $0.024000 | 9 |
 | $0.036000 | $0.036000 | 2 |
 | $0.048000 | $0.048000 | 5 |
@@ -171,6 +169,7 @@ Notes: Requires both `q` and `engine=youtube`.
 A 5 USDC Gateway deposit covers roughly:
 - ~11,363 Twitter `user/info` calls, or
 - ~500 Perplexity Sonar calls, or
+- ~416 Stock Price Snapshot calls, or
 - ~41 full `financial/financials` pulls.
 
 Top-up threshold per the Arc-x402 skill: auto-deposit 5 USDC whenever Gateway balance falls below 0.5 USDC.
