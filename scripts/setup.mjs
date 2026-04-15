@@ -161,6 +161,7 @@ async function main() {
     console.log(`Usage: node setup.mjs <command> [options]
 
 Commands:
+  address                 Print the wallet address derived from the mnemonic
   balance                 Check native, token, and Gateway allowance balances
   approve                 Approve Gateway contract to spend USDC (one-time)
   deposit [--amount N]    Deposit N USDC into Gateway (default: 10)
@@ -196,6 +197,10 @@ Notes:
   const { account, walletClient, publicClient } = createClients(mnemonic);
 
   switch (command) {
+    case "address":
+      console.log(account.address);
+      break;
+
     case "balance":
       await checkBalance(publicClient, account.address);
       break;

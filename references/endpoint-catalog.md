@@ -85,22 +85,22 @@ Category ID: 3 | Provider: Financial
 | 2 | Company Facts (by ticker) | `/apis/v2/financial/company/facts` | $0.024000 |
 | 3 | Earnings | `/apis/v2/financial/earnings/earnings` | $0.012000 |
 | 4 | Earnings Press Releases (by ticker) | `/apis/v2/financial/earnings/press-releases` | $0.048000 |
-| 5 | SEC Filings (by company) | `/apis/v2/financial/filings` | $0.024000 |
-| 6 | SEC Filing Raw Items | `/apis/v2/financial/filings/items` | $0.024000 |
-| 7 | Financial Metrics Historical | `/apis/v2/financial/financial-metrics` | $0.048000 |
-| 8 | Financial Metrics Snapshot | `/apis/v2/financial/financial-metrics/snapshot` | $0.048000 |
-| 9 | All Financial Statements (by ticker) | `/apis/v2/financial/financials` | $0.120000 |
-| 10 | Balance Sheets | `/apis/v2/financial/financials/balance-sheets` | $0.048000 |
-| 11 | Cash Flow Statements | `/apis/v2/financial/financials/cash-flow-statements` | $0.048000 |
-| 12 | Income Statements | `/apis/v2/financial/financials/income-statements` | $0.048000 |
-| 13 | Search Financials (line items) | `/apis/v2/financial/financials/search/line-items` | $0.012000 |
-| 14 | Stock Screener | `/apis/v2/financial/financials/search/screener` | $0.012000 |
-| 15 | Segmented Revenue | `/apis/v2/financial/financials/segmented-revenues` | $0.048000 |
-| 16 | Insider Trades (by ticker) | `/apis/v2/financial/insider-trades` | $0.048000 |
-| 17 | Institutional Ownership | `/apis/v2/financial/institutional-ownership` | $0.048000 |
-| 18 | Historical Interest Rates | `/apis/v2/financial/macro/interest-rates` | $0.024000 |
-| 19 | Latest Interest Rates | `/apis/v2/financial/macro/interest-rates/snapshot` | $0.024000 |
-| 20 | Company News | `/apis/v2/financial/news` | $0.048000 |
+| 5 | Financial Metrics Historical | `/apis/v2/financial/financial-metrics` | $0.048000 |
+| 6 | Financial Metrics Snapshot | `/apis/v2/financial/financial-metrics/snapshot` | $0.048000 |
+| 7 | Income Statements | `/apis/v2/financial/financials/income-statements` | $0.048000 |
+| 8 | Balance Sheets | `/apis/v2/financial/financials/balance-sheets` | $0.048000 |
+| 9 | Cash Flow Statements | `/apis/v2/financial/financials/cash-flow-statements` | $0.048000 |
+| 10 | All Financial Statements (by ticker) | `/apis/v2/financial/financials` | $0.120000 |
+| 11 | Insider Trades (by ticker) | `/apis/v2/financial/insider-trades` | $0.048000 |
+| 12 | Institutional Ownership | `/apis/v2/financial/institutional-ownership` | $0.048000 |
+| 13 | Historical Interest Rates | `/apis/v2/financial/macro/interest-rates` | $0.024000 |
+| 14 | Latest Interest Rates | `/apis/v2/financial/macro/interest-rates/snapshot` | $0.024000 |
+| 15 | Company News | `/apis/v2/financial/news` | $0.048000 |
+| 16 | Stock Screener | `/apis/v2/financial/financials/search/screener` | $0.012000 |
+| 17 | Search Financials (line items) | `/apis/v2/financial/financials/search/line-items` | $0.012000 |
+| 18 | SEC Filings (by company) | `/apis/v2/financial/filings` | $0.024000 |
+| 19 | SEC Filing Raw Items | `/apis/v2/financial/filings/items` | $0.024000 |
+| 20 | Segmented Revenue | `/apis/v2/financial/financials/segmented-revenues` | $0.048000 |
 | 21 | Stock Prices Historical | `/apis/v2/financial/prices` | $0.024000 |
 | 22 | Stock Prices Snapshot | `/apis/v2/financial/prices/snapshot` | $0.024000 |
 

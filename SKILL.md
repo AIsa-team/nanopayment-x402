@@ -70,23 +70,53 @@ npm install
 
 **If mnemonic found** (check in order: `OWS_MNEMONIC` env, `X402_MNEMONIC` env, local `.env`): proceed to step 3.
 
-**If no mnemonic found**:
+**If no mnemonic found**, automatically create a wallet and start the funding flow:
+
 ```bash
-ows wallet create --name my-agent --show-mnemonic
-node scripts/save-mnemonic.mjs --mnemonic "<mnemonic from output>"
+npx --yes @open-wallet-standard/core wallet create --name x402-agent --show-mnemonic
 ```
 **Warning: Circle Faucet is protected by reCAPTCHA — do NOT use browser automation tools (Claude in Chrome, Puppeteer, etc.) to interact with the faucet page. They will fail on the captcha.**
 
-Instead, open the faucet URL in a browser tab for the user:
-
+Save the mnemonic from the output to the local `.env`:
 ```bash
-open "https://faucet.circle.com"
+node scripts/save-mnemonic.mjs --wallet x402-agent
 ```
 
-Then tell the user:
-1. Their wallet address (from the wallet creation output) so they can paste it
-2. To select **Arc Testnet** as the network
-3. To complete the reCAPTCHA and click **Send 20 USDC**
+Get the wallet address:
+```bash
+node scripts/setup.mjs address
+```
+
+Then display the wallet address prominently and open the faucet with the address pre-filled:
+
+1. **Show the wallet address** — display it in a formatted code block so the user can easily copy it:
+   ```
+   Your new wallet address (click to copy):
+
+   `0x<WALLET_ADDRESS>`
+
+   Fund this wallet with testnet USDC to get started.
+   Opening the Circle Faucet now...
+   ```
+
+2. **Open the faucet and pre-fill the address** — use Claude in Chrome to navigate to the faucet and fill the wallet address field:
+   ```
+   tabs_context_mcp (createIfEmpty: true)   → get/create tab group
+   tabs_create_mcp                          → create a new tab
+   navigate (url: "https://faucet.circle.com", tabId: <new_tab>)
+   ```
+   Wait for the page to load, then find and fill the address input:
+   ```
+   find (query: "wallet address input", tabId: <tab>)
+   form_input (ref: <address_input_ref>, value: "<WALLET_ADDRESS>", tabId: <tab>)
+   ```
+
+3. **Tell the user** to complete the remaining steps in the browser tab:
+   - Select **Arc Testnet** as the network
+   - Complete the reCAPTCHA
+   - Click **Send 20 USDC**
+
+   **⚠️ Do NOT use browser automation for the reCAPTCHA or submit button — only pre-fill the address field.**
 
 Wait for the user to confirm they have completed the faucet claim, then verify the balance:
 
@@ -95,6 +125,8 @@ node scripts/setup.mjs balance
 ```
 
 If ERC-20 USDC is still `0`, the faucet claim may not have gone through — ask the user to try again.
+
+Once funded, continue to step 3 to approve and deposit into the Gateway.
 
 ### 3. Check Balance and Auto-Deposit
 
@@ -108,7 +140,7 @@ Parse the output. Then apply these rules in order:
 |-----------|--------|
 | Gateway allowance is `0` | Run `node scripts/setup.mjs approve` first |
 | Gateway deposit < 0.5 USDC AND wallet ERC-20 USDC >= 5 | Run `node scripts/setup.mjs deposit --amount 5` (no user confirmation needed) |
-| Gateway deposit < 0.5 USDC AND wallet ERC-20 USDC < 5 | Run `open "https://faucet.circle.com"` to open the faucet in the user's browser. Tell the user their wallet address, ask them to select **Arc Testnet**, paste the address, complete the reCAPTCHA, and click **Send 20 USDC**. Do NOT use browser automation — the faucet is reCAPTCHA-protected. Wait for user confirmation, then re-run `node scripts/setup.mjs balance` to verify funds arrived. |
+| Gateway deposit < 0.5 USDC AND wallet ERC-20 USDC < 5 | Get the wallet address via `node scripts/setup.mjs address`. Display it in a code block for easy copying. Then open the faucet and pre-fill the address using Claude in Chrome: `tabs_context_mcp` → `tabs_create_mcp` → `navigate` to `https://faucet.circle.com` → `find` the address input → `form_input` to fill the wallet address. Tell the user to select **Arc Testnet**, complete the reCAPTCHA, and click **Send 20 USDC**. Do NOT automate the reCAPTCHA or submit button. Wait for user confirmation, then re-run `node scripts/setup.mjs balance` to verify funds arrived. |
 | Gateway deposit >= 0.5 USDC | Proceed |
 
 > **Warning:** Do NOT directly transfer USDC to the Gateway address. You must call `deposit()` or the funds will be lost.
@@ -127,6 +159,8 @@ Parse the output. Then apply these rules in order:
 - `financial/financial-metrics` ($0.048)
 - `financial/financial-metrics/snapshot` ($0.048)
 - `financial/earnings/press-releases` ($0.048)
+- `financial/financial-metrics` ($0.048)
+- `financial/financial-metrics/snapshot` ($0.048)
 - `financial/financials/income-statements` ($0.048)
 - `financial/financials/balance-sheets` ($0.048)
 - `financial/financials/cash-flow-statements` ($0.048)
@@ -159,6 +193,21 @@ curl -s -X POST https://rpc.testnet.arc.network \
   -d '{"jsonrpc":"2.0","id":1,"method":"eth_getTransactionCount","params":["<WALLET_ADDRESS>","latest"]}'
 
 # Fetch a specific transaction receipt
+### 6. Transaction History
+
+When the user asks for transaction history, wallet activity, or spending summary, compile both on-chain and off-chain (x402 API) activity:
+
+**On-chain transactions:**
+
+1. Get the transaction count:
+```bash
+curl -s -X POST https://rpc.testnet.arc.network \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"eth_getTransactionCount","params":["<WALLET_ADDRESS>","latest"]}'
+```
+
+2. For each known transaction hash (from approve/deposit operations earlier in the session), fetch the receipt:
+```bash
 curl -s -X POST https://rpc.testnet.arc.network \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","id":1,"method":"eth_getTransactionReceipt","params":["<TX_HASH>"]}'
@@ -169,6 +218,11 @@ Receipt fields: `transactionHash`, `blockNumber` (hex), `status` (`0x1` = succes
 - `0x0077777d7eba4688bdef3e311b846f25870a19b9` — Gateway (deposit txs)
 
 **Off-chain x402 API costs:** Each API call's cost is listed in [references/endpoint-catalog.md](./references/endpoint-catalog.md). Track endpoint, price, and total spend across calls.
+Extract from each receipt: `transactionHash`, `blockNumber` (hex→decimal), `status` (`0x1`=Success), `gasUsed` (hex→decimal), and `to` address. Label the `to` address as "USDC Token" if it matches `0x3600000000000000000000000000000000000000` or "Gateway" if it matches `0x0077777d7eba4688bdef3e311b846f25870a19b9`.
+
+**Off-chain x402 API calls:**
+
+Track all x402 API calls made during the session. For each call, record the endpoint name, path, and per-call cost (from `references/endpoint-catalog.md`). Sum the total API spend.
 
 **Current balance:**
 
@@ -228,6 +282,10 @@ const data = await res.json();
 ```
 
 The client outputs JSON to stdout (for piping) and status info to stderr.
+**Present the results as three tables:**
+1. **On-Chain Transactions** — hash, block, action (Approve/Deposit), target contract, gas used, status
+2. **x402 API Calls** — endpoint name, cost per call
+3. **Current Balance** — ERC-20 USDC in wallet, remaining Gateway deposit, total available
 
 ## Endpoint Parameter Caveats
 
