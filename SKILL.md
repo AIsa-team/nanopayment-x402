@@ -7,6 +7,22 @@ description: Access AIsa x402-paid /apis/v2/ endpoints using Arc testnet USDC an
 
 Pay-per-call API access to 79 AIsa endpoints via the x402 HTTP payment protocol. No API key needed — pays with USDC on Arc testnet via Circle Gateway.
 
+## How It Works
+
+```
+Agent ──► AIsa API (HTTP 402) ──► Agent signs EIP-712 payment ──► API returns data
+                                         │
+                               Circle Gateway (batched USDC settlement)
+```
+
+1. Agent sends a request to a paid `/apis/v2/` endpoint
+2. Server responds with HTTP 402 + a `payment-required` header containing accepted payment networks and amounts
+3. Agent signs an EIP-712 `TransferWithAuthorization` for USDC via Circle's GatewayWalletBatched contract
+4. Agent re-sends the request with the signed payment in headers
+5. Server verifies the signature, settles via Circle Gateway, and returns data
+
+> **Note:** The AIsa proxy uses a custom EIP-712 domain where `verifyingContract` is the Gateway contract (from `extra.verifyingContract` in the 402 response), not the USDC asset address. The standard `@x402/evm` `ExactEvmScheme` does not handle this — the included `GatewayEvmScheme` in `x402_client.mjs` handles it.
+
 ## Quick Reference
 
 | Item | Value |
@@ -14,10 +30,26 @@ Pay-per-call API access to 79 AIsa endpoints via the x402 HTTP payment protocol.
 | API Base | `https://api.aisa.one/apis/v2/` |
 | Chain | Arc Testnet (`5042002`) |
 | RPC | `https://rpc.testnet.arc.network` |
-| USDC Token | `0x3600000000000000000000000000000000000000` |
-| Gateway | `0x0077777d7eba4688bdef3e311b846f25870a19b9` |
+| Explorer | https://testnet.arcscan.app/ |
 | Faucet | https://faucet.circle.com/ |
+| USDC Token | `0x3600000000000000000000000000000000000000` |
+| USDC Decimals | 6 (ERC-20 token), 18 (native gas) |
+| Gateway | `0x0077777d7eba4688bdef3e311b846f25870a19b9` |
 | Endpoint catalog | `references/endpoint-catalog.md` |
+| API Path Prefix | `/apis/v2/` (x402) vs `/apis/v1/` (API key) |
+
+## Prerequisites
+
+- **Node.js** (v18+)
+- **npm**
+
+```bash
+# Install OWS CLI
+npm install -g @open-wallet-standard/core
+
+# Install skill dependencies
+npm install
+```
 
 ## Decision Flow
 
@@ -43,6 +75,7 @@ npm install
 ```bash
 npx --yes @open-wallet-standard/core wallet create --name x402-agent --show-mnemonic
 ```
+**Warning: Circle Faucet is protected by reCAPTCHA — do NOT use browser automation tools (Claude in Chrome, Puppeteer, etc.) to interact with the faucet page. They will fail on the captcha.**
 
 Save the mnemonic from the output to the local `.env`:
 ```bash
@@ -110,6 +143,8 @@ Parse the output. Then apply these rules in order:
 | Gateway deposit < 0.5 USDC AND wallet ERC-20 USDC < 5 | Get the wallet address via `node scripts/setup.mjs address`. Display it in a code block for easy copying. Then open the faucet and pre-fill the address using Claude in Chrome: `tabs_context_mcp` → `tabs_create_mcp` → `navigate` to `https://faucet.circle.com` → `find` the address input → `form_input` to fill the wallet address. Tell the user to select **Arc Testnet**, complete the reCAPTCHA, and click **Send 20 USDC**. Do NOT automate the reCAPTCHA or submit button. Wait for user confirmation, then re-run `node scripts/setup.mjs balance` to verify funds arrived. |
 | Gateway deposit >= 0.5 USDC | Proceed |
 
+> **Warning:** Do NOT directly transfer USDC to the Gateway address. You must call `deposit()` or the funds will be lost.
+
 ### 4. Look Up Endpoint
 
 **Before every API call**, look up the endpoint in `references/endpoint-catalog.md`. Extract:
@@ -121,6 +156,8 @@ Parse the output. Then apply these rules in order:
 - `twitter/user/followers` ($0.036)
 - `twitter/user/followings` ($0.036)
 - `financial/analyst-estimates` ($0.120)
+- `financial/financial-metrics` ($0.048)
+- `financial/financial-metrics/snapshot` ($0.048)
 - `financial/earnings/press-releases` ($0.048)
 - `financial/financial-metrics` ($0.048)
 - `financial/financial-metrics/snapshot` ($0.048)
@@ -145,6 +182,17 @@ POST endpoints with no body still need `--body '{}'`.
 
 Output: JSON on stdout, status info on stderr. Parse stdout for the API response.
 
+### 6. View Transaction History
+
+**On-chain transactions** (approve, deposit):
+
+```bash
+# Get total transaction count
+curl -s -X POST https://rpc.testnet.arc.network \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"eth_getTransactionCount","params":["<WALLET_ADDRESS>","latest"]}'
+
+# Fetch a specific transaction receipt
 ### 6. Transaction History
 
 When the user asks for transaction history, wallet activity, or spending summary, compile both on-chain and off-chain (x402 API) activity:
@@ -165,6 +213,11 @@ curl -s -X POST https://rpc.testnet.arc.network \
   -d '{"jsonrpc":"2.0","id":1,"method":"eth_getTransactionReceipt","params":["<TX_HASH>"]}'
 ```
 
+Receipt fields: `transactionHash`, `blockNumber` (hex), `status` (`0x1` = success), `gasUsed` (hex), `to` (contract address). Known contracts:
+- `0x3600000000000000000000000000000000000000` — USDC Token (approve txs)
+- `0x0077777d7eba4688bdef3e311b846f25870a19b9` — Gateway (deposit txs)
+
+**Off-chain x402 API costs:** Each API call's cost is listed in [references/endpoint-catalog.md](./references/endpoint-catalog.md). Track endpoint, price, and total spend across calls.
 Extract from each receipt: `transactionHash`, `blockNumber` (hex→decimal), `status` (`0x1`=Success), `gasUsed` (hex→decimal), and `to` address. Label the `to` address as "USDC Token" if it matches `0x3600000000000000000000000000000000000000` or "Gateway" if it matches `0x0077777d7eba4688bdef3e311b846f25870a19b9`.
 
 **Off-chain x402 API calls:**
@@ -177,6 +230,58 @@ Track all x402 API calls made during the session. For each call, record the endp
 node scripts/setup.mjs balance
 ```
 
+This shows ERC-20 USDC in wallet, Gateway allowance, and remaining Gateway deposit.
+
+## Request Examples
+
+```bash
+export OWS_MNEMONIC="your twelve word mnemonic phrase here"
+
+# Scholar search
+node scripts/x402_client.mjs POST "https://api.aisa.one/apis/v2/scholar/search/scholar?query=AI" --body '{}'
+
+# Polymarket markets (status is required when using search)
+node scripts/x402_client.mjs GET "https://api.aisa.one/apis/v2/polymarket/markets?search=election&status=open"
+
+# Tavily search
+node scripts/x402_client.mjs POST "https://api.aisa.one/apis/v2/tavily/search" --body '{"query":"latest AI news"}'
+
+# Twitter user info (use userName, not screen_name)
+node scripts/x402_client.mjs GET "https://api.aisa.one/apis/v2/twitter/user/info?userName=jack"
+
+# Twitter recent tweets
+node scripts/x402_client.mjs GET "https://api.aisa.one/apis/v2/twitter/user/last_tweets?userName=jack"
+
+# Kalshi markets (status is required when using search)
+node scripts/x402_client.mjs GET "https://api.aisa.one/apis/v2/kalshi/markets?search=election&status=open"
+
+# Financial statements
+node scripts/x402_client.mjs GET "https://api.aisa.one/apis/v2/financial/financials/income-statements?ticker=AAPL"
+node scripts/x402_client.mjs GET "https://api.aisa.one/apis/v2/financial/financials?ticker=AAPL"
+
+# Scholar mixed search
+node scripts/x402_client.mjs POST "https://api.aisa.one/apis/v2/scholar/search/mixed?query=bitcoin" --body '{}'
+
+# Perplexity (model is required in the JSON body)
+node scripts/x402_client.mjs POST "https://api.aisa.one/apis/v2/perplexity/sonar" --body '{"model":"sonar","messages":[{"role":"user","content":"What is Bitcoin? Keep it brief."}]}'
+
+# YouTube search (requires both q and engine)
+node scripts/x402_client.mjs GET "https://api.aisa.one/apis/v2/youtube/search?q=bitcoin&engine=youtube"
+```
+
+## Programmatic Usage (Node.js)
+
+```javascript
+import { createPayingFetch } from "./scripts/x402_client.mjs";
+
+const { fetch: payingFetch, address } = createPayingFetch(process.env.OWS_MNEMONIC);
+const res = await payingFetch("https://api.aisa.one/apis/v2/scholar/search/scholar?query=AI", {
+  method: "POST", headers: { "Content-Type": "application/json" }, body: "{}",
+});
+const data = await res.json();
+```
+
+The client outputs JSON to stdout (for piping) and status info to stderr.
 **Present the results as three tables:**
 1. **On-Chain Transactions** — hash, block, action (Approve/Deposit), target contract, gas used, status
 2. **x402 API Calls** — endpoint name, cost per call
@@ -203,6 +308,7 @@ node scripts/setup.mjs balance
 | `Invalid price: $0.000000` | Upstream pricing bug | Still use x402 flow; report as upstream issue |
 | Empty 200 response | Misleading success | Inspect response body, not just status code |
 | Mnemonic not found | Env var not propagated to process | Run `node scripts/save-mnemonic.mjs --mnemonic "..."` to persist in `.env` |
+| `UnsupportedChain` (ows CLI) | Known OWS issue with testnet chain IDs | Use the JS client instead of `ows pay request` |
 
 After fixing any error, retry the original request once.
 
@@ -226,3 +332,11 @@ After fixing any error, retry the original request once.
 | `references/endpoint-catalog.md` | All 79 endpoints with prices — authoritative source |
 | `references/setup.md` | Environment and runtime notes |
 | `references/troubleshooting.md` | Extended failure diagnostics |
+
+## Resources
+
+- [x402 Protocol](https://www.x402.org/) — HTTP payment standard
+- [Open Wallet Standard](https://openwallet.sh/) — Local wallet management for agents
+- [Circle Gateway](https://developers.circle.com/gateway/concepts/technical-guide) — Batched USDC settlement
+- [Arc Testnet](https://docs.arc.network/) — Circle's EVM L1 with native USDC
+- [AIsa API Docs](https://docs.aisa.one) — Full endpoint documentation

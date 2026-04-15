@@ -163,7 +163,7 @@ Notes: Requires both `q` and `engine=youtube`.
 | $0.048000 | $0.048000 | 10 |
 | $0.120000 | $0.120000 | 2 |
 
-**Cheapest:** `/apis/v2/twitter/user/batch_info_by_ids`, `/apis/v2/twitter/user/info`, `/apis/v2/twitter/user/verifiedFollowers`, `/apis/v2/twitter/user_about` — all at $0.000440. **Most expensive single call:** `/apis/v2/financial/financials` at $0.120000.
+**Cheapest:** `/apis/v2/twitter/user/batch_info_by_ids`, `/apis/v2/twitter/user/info`, `/apis/v2/twitter/user/verifiedFollowers`, `/apis/v2/twitter/user_about` — all at $0.000440. **Most expensive single call:** `/apis/v2/financial/analyst-estimates` and `/apis/v2/financial/financials` at $0.120000.
 
 ## Minimum Gateway Deposit Guidance
 
