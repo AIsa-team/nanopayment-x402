@@ -184,17 +184,6 @@ Output: JSON on stdout, status info on stderr. Parse stdout for the API response
 
 ### 6. View Transaction History
 
-**On-chain transactions** (approve, deposit):
-
-```bash
-# Get total transaction count
-curl -s -X POST https://rpc.testnet.arc.network \
-  -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","id":1,"method":"eth_getTransactionCount","params":["<WALLET_ADDRESS>","latest"]}'
-
-# Fetch a specific transaction receipt
-### 6. Transaction History
-
 When the user asks for transaction history, wallet activity, or spending summary, compile both on-chain and off-chain (x402 API) activity:
 
 **On-chain transactions:**
@@ -213,16 +202,11 @@ curl -s -X POST https://rpc.testnet.arc.network \
   -d '{"jsonrpc":"2.0","id":1,"method":"eth_getTransactionReceipt","params":["<TX_HASH>"]}'
 ```
 
-Receipt fields: `transactionHash`, `blockNumber` (hex), `status` (`0x1` = success), `gasUsed` (hex), `to` (contract address). Known contracts:
+Extract from each receipt: `transactionHash`, `blockNumber` (hex→decimal), `status` (`0x1`=Success), `gasUsed` (hex→decimal), and `to` address. Known contracts:
 - `0x3600000000000000000000000000000000000000` — USDC Token (approve txs)
 - `0x0077777d7eba4688bdef3e311b846f25870a19b9` — Gateway (deposit txs)
 
-**Off-chain x402 API costs:** Each API call's cost is listed in [references/endpoint-catalog.md](./references/endpoint-catalog.md). Track endpoint, price, and total spend across calls.
-Extract from each receipt: `transactionHash`, `blockNumber` (hex→decimal), `status` (`0x1`=Success), `gasUsed` (hex→decimal), and `to` address. Label the `to` address as "USDC Token" if it matches `0x3600000000000000000000000000000000000000` or "Gateway" if it matches `0x0077777d7eba4688bdef3e311b846f25870a19b9`.
-
-**Off-chain x402 API calls:**
-
-Track all x402 API calls made during the session. For each call, record the endpoint name, path, and per-call cost (from `references/endpoint-catalog.md`). Sum the total API spend.
+**Off-chain x402 API calls:** Track all x402 API calls made during the session. For each call, record the endpoint name, path, and per-call cost (from `references/endpoint-catalog.md`). Sum the total API spend.
 
 **Current balance:**
 
@@ -231,6 +215,11 @@ node scripts/setup.mjs balance
 ```
 
 This shows ERC-20 USDC in wallet, Gateway allowance, and remaining Gateway deposit.
+
+**Present the results as three tables:**
+1. **On-Chain Transactions** — hash, block, action (Approve/Deposit), target contract, gas used, status
+2. **x402 API Calls** — endpoint name, cost per call
+3. **Current Balance** — ERC-20 USDC in wallet, remaining Gateway deposit, total available
 
 ## Request Examples
 
@@ -282,10 +271,6 @@ const data = await res.json();
 ```
 
 The client outputs JSON to stdout (for piping) and status info to stderr.
-**Present the results as three tables:**
-1. **On-Chain Transactions** — hash, block, action (Approve/Deposit), target contract, gas used, status
-2. **x402 API Calls** — endpoint name, cost per call
-3. **Current Balance** — ERC-20 USDC in wallet, remaining Gateway deposit, total available
 
 ## Endpoint Parameter Caveats
 
