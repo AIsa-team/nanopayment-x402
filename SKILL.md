@@ -1,11 +1,11 @@
 ---
 name: arc-x402
-description: Access AIsa x402-paid /apis/v2/ endpoints using Arc testnet USDC and Circle Gateway. Use when setting up x402 payments, creating or funding an Arc wallet, depositing into Circle Gateway, picking the right AIsa endpoint for a task, estimating per-call cost, or making paid AIsa API calls without an API key.
+description: Access AIsa x402-paid /apis/v2/ endpoints using Arc testnet USDC and Circle Gateway. Use when setting up x402 payments, creating or funding an Arc wallet, depositing into Circle Gateway, picking the right AIsa endpoint for a task, estimating per-call cost, or making paid AIsa API calls without an API key. 78 endpoints across Twitter, Financial, Search, Scholar, Perplexity, and YouTube categories.
 ---
 
 # arc-x402
 
-Pay-per-call API access to 80 AIsa endpoints via the x402 HTTP payment protocol. No API key needed — pays with USDC on Arc testnet via Circle Gateway.
+Pay-per-call API access to 78 AIsa endpoints via the x402 HTTP payment protocol. No API key needed — pays with USDC on Arc testnet via Circle Gateway.
 
 ## Quick Reference
 
@@ -43,13 +43,20 @@ npm install
 ows wallet create --name my-agent --show-mnemonic
 node scripts/save-mnemonic.mjs --mnemonic "<mnemonic from output>"
 ```
-Navigate the browser to the Circle faucet with the wallet address pre-filled:
+**⚠️ Circle Faucet is protected by reCAPTCHA — do NOT use browser automation tools (Claude in Chrome, Puppeteer, etc.) to interact with the faucet page. They will fail on the captcha.**
 
-```
-https://faucet.circle.com/?address=<EVM_ADDRESS>
+Instead, open the faucet URL in a browser tab for the user:
+
+```bash
+open "https://faucet.circle.com"
 ```
 
-Replace `<EVM_ADDRESS>` with the actual EVM address from the wallet creation output. Then ask the user (using `ask` type with `take_over_browser`): "The faucet is open with your wallet address pre-filled. Please complete the reCAPTCHA and click **Send 20 USDC**, then let me know when done." Wait for the user to confirm before proceeding.
+Then tell the user:
+1. Their wallet address (from the wallet creation output) so they can paste it
+2. To select **Arc Testnet** as the network
+3. To complete the reCAPTCHA and click **Send 20 USDC**
+
+Wait for the user to confirm they have received the funds before proceeding.
 
 ### 3. Check Balance and Auto-Deposit
 
@@ -63,7 +70,7 @@ Parse the output. Then apply these rules in order:
 |-----------|--------|
 | Gateway allowance is `0` | Run `node scripts/setup.mjs approve` first |
 | Gateway deposit < 0.5 USDC AND wallet ERC-20 USDC >= 5 | Run `node scripts/setup.mjs deposit --amount 5` (no user confirmation needed) |
-| Gateway deposit < 0.5 USDC AND wallet ERC-20 USDC < 5 | Navigate the browser to `https://faucet.circle.com/?address=<EVM_ADDRESS>` and ask the user (using `ask` type with `take_over_browser`) to complete the reCAPTCHA and click **Send 20 USDC** |
+| Gateway deposit < 0.5 USDC AND wallet ERC-20 USDC < 5 | Run `open "https://faucet.circle.com"` to open the faucet in the user's browser. Tell the user their wallet address, ask them to select **Arc Testnet**, paste the address, complete the reCAPTCHA, and click **Send 20 USDC**. Do NOT use browser automation — the faucet is reCAPTCHA-protected. Wait for user confirmation. |
 | Gateway deposit >= 0.5 USDC | Proceed |
 
 ### 4. Look Up Endpoint
@@ -136,6 +143,6 @@ After fixing any error, retry the original request once.
 | `scripts/save-mnemonic.mjs` | Persist mnemonic to local `.env` |
 | `scripts/setup.mjs` | Balance check, ERC-20 approve, Gateway deposit |
 | `scripts/x402_client.mjs` | Make paid x402 API requests |
-| `references/endpoint-catalog.md` | All 80 endpoints with prices — authoritative source |
+| `references/endpoint-catalog.md` | All 78 endpoints with prices — authoritative source |
 | `references/setup.md` | Environment and runtime notes |
 | `references/troubleshooting.md` | Extended failure diagnostics |
