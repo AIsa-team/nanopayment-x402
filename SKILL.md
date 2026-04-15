@@ -49,20 +49,41 @@ Save the mnemonic from the output to the local `.env`:
 node scripts/save-mnemonic.mjs --wallet x402-agent
 ```
 
-Then immediately proceed to the funding flow:
-
-**⚠️ Circle Faucet is protected by reCAPTCHA — do NOT use browser automation tools (Claude in Chrome, Puppeteer, etc.) to interact with the faucet page. They will fail on the captcha.**
-
-Open the faucet URL in the user's browser:
-
+Get the wallet address:
 ```bash
-open "https://faucet.circle.com"
+node scripts/setup.mjs address
 ```
 
-Tell the user:
-1. Their wallet address (from the wallet creation output) so they can paste it
-2. To select **Arc Testnet** as the network
-3. To complete the reCAPTCHA and click **Send 20 USDC**
+Then display the wallet address prominently and open the faucet with the address pre-filled:
+
+1. **Show the wallet address** — display it in a formatted code block so the user can easily copy it:
+   ```
+   Your new wallet address (click to copy):
+
+   `0x<WALLET_ADDRESS>`
+
+   Fund this wallet with testnet USDC to get started.
+   Opening the Circle Faucet now...
+   ```
+
+2. **Open the faucet and pre-fill the address** — use Claude in Chrome to navigate to the faucet and fill the wallet address field:
+   ```
+   tabs_context_mcp (createIfEmpty: true)   → get/create tab group
+   tabs_create_mcp                          → create a new tab
+   navigate (url: "https://faucet.circle.com", tabId: <new_tab>)
+   ```
+   Wait for the page to load, then find and fill the address input:
+   ```
+   find (query: "wallet address input", tabId: <tab>)
+   form_input (ref: <address_input_ref>, value: "<WALLET_ADDRESS>", tabId: <tab>)
+   ```
+
+3. **Tell the user** to complete the remaining steps in the browser tab:
+   - Select **Arc Testnet** as the network
+   - Complete the reCAPTCHA
+   - Click **Send 20 USDC**
+
+   **⚠️ Do NOT use browser automation for the reCAPTCHA or submit button — only pre-fill the address field.**
 
 Wait for the user to confirm they have completed the faucet claim, then verify the balance:
 
@@ -86,7 +107,7 @@ Parse the output. Then apply these rules in order:
 |-----------|--------|
 | Gateway allowance is `0` | Run `node scripts/setup.mjs approve` first |
 | Gateway deposit < 0.5 USDC AND wallet ERC-20 USDC >= 5 | Run `node scripts/setup.mjs deposit --amount 5` (no user confirmation needed) |
-| Gateway deposit < 0.5 USDC AND wallet ERC-20 USDC < 5 | Run `open "https://faucet.circle.com"` to open the faucet in the user's browser. Tell the user their wallet address, ask them to select **Arc Testnet**, paste the address, complete the reCAPTCHA, and click **Send 20 USDC**. Do NOT use browser automation — the faucet is reCAPTCHA-protected. Wait for user confirmation, then re-run `node scripts/setup.mjs balance` to verify funds arrived. |
+| Gateway deposit < 0.5 USDC AND wallet ERC-20 USDC < 5 | Get the wallet address via `node scripts/setup.mjs address`. Display it in a code block for easy copying. Then open the faucet and pre-fill the address using Claude in Chrome: `tabs_context_mcp` → `tabs_create_mcp` → `navigate` to `https://faucet.circle.com` → `find` the address input → `form_input` to fill the wallet address. Tell the user to select **Arc Testnet**, complete the reCAPTCHA, and click **Send 20 USDC**. Do NOT automate the reCAPTCHA or submit button. Wait for user confirmation, then re-run `node scripts/setup.mjs balance` to verify funds arrived. |
 | Gateway deposit >= 0.5 USDC | Proceed |
 
 ### 4. Look Up Endpoint
