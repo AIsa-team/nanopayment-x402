@@ -56,7 +56,13 @@ Then tell the user:
 2. To select **Arc Testnet** as the network
 3. To complete the reCAPTCHA and click **Send 20 USDC**
 
-Wait for the user to confirm they have completed the faucet claim before proceeding.
+Wait for the user to confirm they have completed the faucet claim, then verify the balance:
+
+```bash
+node scripts/setup.mjs balance
+```
+
+If ERC-20 USDC is still `0`, the faucet claim may not have gone through — ask the user to try again.
 
 ### 3. Check Balance and Auto-Deposit
 
@@ -70,7 +76,7 @@ Parse the output. Then apply these rules in order:
 |-----------|--------|
 | Gateway allowance is `0` | Run `node scripts/setup.mjs approve` first |
 | Gateway deposit < 0.5 USDC AND wallet ERC-20 USDC >= 5 | Run `node scripts/setup.mjs deposit --amount 5` (no user confirmation needed) |
-| Gateway deposit < 0.5 USDC AND wallet ERC-20 USDC < 5 | Run `open "https://faucet.circle.com"` to open the faucet in the user's browser. Tell the user their wallet address, ask them to select **Arc Testnet**, paste the address, complete the reCAPTCHA, and click **Send 20 USDC**. Do NOT use browser automation — the faucet is reCAPTCHA-protected. Wait for user confirmation. |
+| Gateway deposit < 0.5 USDC AND wallet ERC-20 USDC < 5 | Run `open "https://faucet.circle.com"` to open the faucet in the user's browser. Tell the user their wallet address, ask them to select **Arc Testnet**, paste the address, complete the reCAPTCHA, and click **Send 20 USDC**. Do NOT use browser automation — the faucet is reCAPTCHA-protected. Wait for user confirmation, then re-run `node scripts/setup.mjs balance` to verify funds arrived. |
 | Gateway deposit >= 0.5 USDC | Proceed |
 
 ### 4. Look Up Endpoint
