@@ -38,20 +38,28 @@ npm install
 
 **If mnemonic found** (check in order: `OWS_MNEMONIC` env, `X402_MNEMONIC` env, local `.env`): proceed to step 3.
 
-**If no mnemonic found**:
+**If no mnemonic found**, automatically create a wallet and start the funding flow:
+
 ```bash
-ows wallet create --name my-agent --show-mnemonic
-node scripts/save-mnemonic.mjs --mnemonic "<mnemonic from output>"
+npx --yes @open-wallet-standard/core wallet create --name x402-agent --show-mnemonic
 ```
+
+Save the mnemonic from the output to the local `.env`:
+```bash
+node scripts/save-mnemonic.mjs --wallet x402-agent
+```
+
+Then immediately proceed to the funding flow:
+
 **⚠️ Circle Faucet is protected by reCAPTCHA — do NOT use browser automation tools (Claude in Chrome, Puppeteer, etc.) to interact with the faucet page. They will fail on the captcha.**
 
-Instead, open the faucet URL in a browser tab for the user:
+Open the faucet URL in the user's browser:
 
 ```bash
 open "https://faucet.circle.com"
 ```
 
-Then tell the user:
+Tell the user:
 1. Their wallet address (from the wallet creation output) so they can paste it
 2. To select **Arc Testnet** as the network
 3. To complete the reCAPTCHA and click **Send 20 USDC**
@@ -63,6 +71,8 @@ node scripts/setup.mjs balance
 ```
 
 If ERC-20 USDC is still `0`, the faucet claim may not have gone through — ask the user to try again.
+
+Once funded, continue to step 3 to approve and deposit into the Gateway.
 
 ### 3. Check Balance and Auto-Deposit
 
