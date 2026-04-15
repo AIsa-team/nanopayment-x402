@@ -44,9 +44,6 @@ Agent ──► AIsa API (HTTP 402) ──► Agent signs EIP-712 payment ──
 - **npm**
 
 ```bash
-# Install OWS CLI
-npm install -g @open-wallet-standard/core
-
 # Install skill dependencies
 npm install
 ```
@@ -70,17 +67,25 @@ npm install
 
 **If mnemonic found** (check in order: `OWS_MNEMONIC` env, `X402_MNEMONIC` env, local `.env`): proceed to step 3.
 
-**If no mnemonic found**, automatically create a wallet and start the funding flow:
+**If no mnemonic found**, generate a wallet directly using viem (no interactive terminal needed) and save it to `.env` in one step:
 
 ```bash
-npx --yes @open-wallet-standard/core wallet create --name x402-agent --show-mnemonic
+node --input-type=module -e "
+import { generateMnemonic, english, mnemonicToAccount } from 'viem/accounts';
+import fs from 'fs';
+import path from 'path';
+const mnemonic = generateMnemonic(english);
+const account = mnemonicToAccount(mnemonic);
+const envPath = path.resolve('.env');
+fs.writeFileSync(envPath, 'OWS_MNEMONIC=' + mnemonic + '\n');
+console.log('MNEMONIC_SAVED=true');
+console.log('ADDRESS=' + account.address);
+"
 ```
+
+This generates a BIP-39 mnemonic, derives the Ethereum address, and persists the mnemonic to `.env` — fully automated with no user interaction.
+
 **Warning: Circle Faucet is protected by reCAPTCHA — do NOT use browser automation tools (Claude in Chrome, Puppeteer, etc.) to interact with the faucet page. They will fail on the captcha.**
-
-Save the mnemonic from the output to the local `.env`:
-```bash
-node scripts/save-mnemonic.mjs --wallet x402-agent
-```
 
 Get the wallet address:
 ```bash
@@ -304,7 +309,7 @@ After fixing any error, retry the original request once.
 - Never `transfer` USDC directly to the Gateway address — must use `deposit()`.
 - Never deposit more USDC than the wallet's available ERC-20 balance.
 - Never quote prices from memory — always read `references/endpoint-catalog.md`.
-- Mnemonic source priority: `OWS_MNEMONIC` > `X402_MNEMONIC` > local `.env` > `--mnemonic-env` > `--mnemonic`.
+- Mnemonic source priority: `OWS_MNEMONIC` env > `X402_MNEMONIC` env > local `.env` > `--mnemonic` flag.
 
 ## Files
 
