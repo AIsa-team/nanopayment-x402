@@ -157,6 +157,8 @@ Parse the output. Then apply these rules in order:
 - Per-call price in USD
 - Required parameters and caveats
 
+**Earnings Press Releases ticker validation**: When calling `/financial/earnings/press-releases`, first check `references/earnings-press-releases-tickers.md` to confirm the ticker is in the supported list (2776 tickers). If the ticker is not listed, tell the user it is unsupported and suggest `/financial/analyst-estimates` or `/financial/financials/income-statements` instead. This avoids wasting a $0.048 call on an invalid ticker.
+
 **Cost confirmation rule**: If price >= $0.036/call, confirm with the user before calling. Expensive endpoints:
 - `twitter/user/followers` ($0.036)
 - `twitter/user/followings` ($0.036)
@@ -341,6 +343,7 @@ After fixing any error, retry the original request once.
 | `scripts/setup.mjs` | Balance check, ERC-20 approve, Gateway deposit |
 | `scripts/x402_client.mjs` | Make paid x402 API requests |
 | `references/endpoint-catalog.md` | All 79 endpoints with prices — authoritative source |
+| `references/earnings-press-releases-tickers.md` | Supported tickers for `/financial/earnings/press-releases` (2776 tickers) |
 | `references/setup.md` | Environment and runtime notes |
 | `references/troubleshooting.md` | Extended failure diagnostics |
 

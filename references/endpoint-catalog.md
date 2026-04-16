@@ -104,7 +104,9 @@ Category ID: 3 | Provider: Financial
 | 21 | Stock Prices Historical | `/apis/v2/financial/prices` | $0.024000 |
 | 22 | Stock Prices Snapshot | `/apis/v2/financial/prices/snapshot` | $0.024000 |
 
-Notes: there are currently no free endpoints in the catalog. If the server ever returns `Invalid price: $0.000000`, treat it as an upstream pricing bug, not an auth-mode switch.
+Notes:
+- **Earnings Press Releases** has limited ticker coverage (2776 tickers). Before calling this endpoint, check `references/earnings-press-releases-tickers.md` to confirm the ticker is supported. Passing an unsupported ticker returns `{"error":"Invalid ticker"}`. If the ticker is not in the list, use `/financial/analyst-estimates` or `/financial/financials/income-statements` instead.
+- There are currently no free endpoints in the catalog. If the server ever returns `Invalid price: $0.000000`, treat it as an upstream pricing bug, not an auth-mode switch.
 
 ## Scholar & Search (4 endpoints)
 
