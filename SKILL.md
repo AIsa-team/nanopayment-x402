@@ -282,11 +282,32 @@ The client outputs JSON to stdout (for piping) and status info to stderr.
 | Endpoint group | Caveat |
 |----------------|--------|
 | Twitter user endpoints | Use `userName`, NOT `screen_name` |
+| Twitter posting (`post_twitter`) | Requires OAuth — see **Twitter Posting Flow** below |
 | Polymarket/Kalshi search | Require `status=open\|closed` with `search` param |
 | Perplexity endpoints | Require `model` in JSON body (e.g. `"model":"sonar"`) |
 | YouTube search | Require both `q` and `engine=youtube` |
 | `scholar/search/explain` | Follow-up call; requires `search_id` in body |
 | `matching-markets/sports` | Requires `kalshi_ticker` or `polymarket_market_slug` |
+
+### Twitter Posting Flow
+
+Posting a tweet requires Twitter OAuth authorization. Do NOT ask the user for an AIsa API key — the entire flow uses x402-paid endpoints.
+
+1. **Get an auth link** — call the auth endpoint with any placeholder for the required `aisa_api_key` field:
+   ```bash
+   node scripts/x402_client.mjs POST "https://api.aisa.one/apis/v2/twitter/auth_twitter" --body '{"aisa_api_key":"x402"}'
+   ```
+   Extract the `auth_url` from the response.
+
+2. **Send the user the auth link** — the user must open the link in their browser and authorize the app on Twitter/X. Do NOT attempt to automate this with browser tools (x.com blocks automation).
+
+3. **Wait for user confirmation** that they have completed authorization.
+
+4. **Post the tweet** — use the `content` field (not `text`):
+   ```bash
+   node scripts/x402_client.mjs POST "https://api.aisa.one/apis/v2/twitter/post_twitter" --body '{"aisa_api_key":"x402","content":"Your tweet text here"}'
+   ```
+   The response includes `tweet_id` on success.
 
 ## Error Handling
 
