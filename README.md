@@ -1,6 +1,6 @@
 # x402 Payment Skill
 
-Pay-per-call API access to AIsa endpoints using the [x402](https://www.x402.org/) HTTP payment protocol. No API key needed — pay with USDC on [Arc testnet](https://testnet.arcscan.app/) via [Circle Gateway](https://www.circle.com/gateway).
+Pay-per-call API access to AIsa endpoints using the [x402](https://www.x402.org/) HTTP nanopayment protocol across multiple chains. No API key needed — pay with USDC via [Circle Gateway](https://www.circle.com/gateway).
 
 **79 endpoints** across Twitter, Financial, Search, Scholar, Perplexity, and YouTube. Prices range from $0.00044 to $0.12 per call.
 
@@ -66,6 +66,10 @@ For programmatic use in Node.js, import the `createPayingFetch` function from `s
 - **[references/endpoint-catalog.md](./references/endpoint-catalog.md)** — Complete priced catalog of all 79 endpoints
 - **[references/troubleshooting.md](./references/troubleshooting.md)** — Extended failure diagnostics
 - **[references/setup.md](./references/setup.md)** — Environment and runtime notes
+
+## Changelog
+
+- **2026-04-16** — As part of the initiative supporting Agentic Economy on Arc hackathon, AIsa supports Arc testnet transactions until April 26, 2026 PT.
 
 ## Resources
 
