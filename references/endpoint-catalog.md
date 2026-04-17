@@ -83,7 +83,7 @@ Category ID: 3 | Provider: Financial
 |---|------|------|------------:|
 | 1 | Earnings Per Share / Analyst Estimates | `/apis/v2/financial/analyst-estimates` | $0.120000 |
 | 2 | Company Facts (by ticker) | `/apis/v2/financial/company/facts` | $0.024000 |
-| 3 | Earnings | `/apis/v2/financial/earnings/earnings` | $0.012000 |
+| 3 | Earnings | `/apis/v2/financial/earnings` | $0.012000 |
 | 4 | Earnings Press Releases (by ticker) | `/apis/v2/financial/earnings/press-releases` | $0.048000 |
 | 5 | Financial Metrics Historical | `/apis/v2/financial/financial-metrics` | $0.048000 |
 | 6 | Financial Metrics Snapshot | `/apis/v2/financial/financial-metrics/snapshot` | $0.048000 |
