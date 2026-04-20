@@ -1,9 +1,9 @@
 ---
-name: arc-x402
+name: nanopayment-x402
 description: Access AIsa x402-paid /apis/v2/ endpoints using Arc testnet USDC and Circle Gateway. Use when setting up x402 payments, creating or funding an Arc wallet, depositing into Circle Gateway, picking the right AIsa endpoint for a task, estimating per-call cost, or making paid AIsa API calls without an API key. 104 endpoints across Twitter, Financial, Search, Scholar, Perplexity, YouTube, and CoinGecko categories.
 ---
 
-# arc-x402
+# nanopayment-x402
 
 Pay-per-call API access to 104 AIsa endpoints via the x402 HTTP payment protocol. No API key needed — pays with USDC on Arc testnet via Circle Gateway.
 
