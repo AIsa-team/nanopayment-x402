@@ -1,11 +1,11 @@
 ---
 name: arc-x402
-description: Access AIsa x402-paid /apis/v2/ endpoints using Arc testnet USDC and Circle Gateway. Use when setting up x402 payments, creating or funding an Arc wallet, depositing into Circle Gateway, picking the right AIsa endpoint for a task, estimating per-call cost, or making paid AIsa API calls without an API key. 106 endpoints across Twitter, Financial, Search, Scholar, Perplexity, YouTube, and CoinGecko categories.
+description: Access AIsa x402-paid /apis/v2/ endpoints using Arc testnet USDC and Circle Gateway. Use when setting up x402 payments, creating or funding an Arc wallet, depositing into Circle Gateway, picking the right AIsa endpoint for a task, estimating per-call cost, or making paid AIsa API calls without an API key. 104 endpoints across Twitter, Financial, Search, Scholar, Perplexity, YouTube, and CoinGecko categories.
 ---
 
 # arc-x402
 
-Pay-per-call API access to 106 AIsa endpoints via the x402 HTTP payment protocol. No API key needed — pays with USDC on Arc testnet via Circle Gateway.
+Pay-per-call API access to 104 AIsa endpoints via the x402 HTTP payment protocol. No API key needed — pays with USDC on Arc testnet via Circle Gateway.
 
 ## How It Works
 
@@ -342,7 +342,7 @@ After fixing any error, retry the original request once.
 | `scripts/save-mnemonic.mjs` | Persist mnemonic to local `.env` |
 | `scripts/setup.mjs` | Balance check, ERC-20 approve, Gateway deposit |
 | `scripts/x402_client.mjs` | Make paid x402 API requests |
-| `references/endpoint-catalog.md` | All 106 endpoints with prices — authoritative source |
+| `references/endpoint-catalog.md` | All 104 endpoints with prices — authoritative source |
 | `references/earnings-press-releases-tickers.md` | Supported tickers for `/financial/earnings/press-releases` (2776 tickers) |
 | `references/setup.md` | Environment and runtime notes |
 | `references/troubleshooting.md` | Extended failure diagnostics |
