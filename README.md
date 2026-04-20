@@ -16,26 +16,32 @@ Agent --> AIsa API (HTTP 402) --> Agent signs EIP-712 payment --> API returns da
 
 ```bash
 # 1. Install dependencies
-npm install -g @open-wallet-standard/core
 npm install
 
-# 2. Create a wallet
-ows wallet create --name my-agent
+# 2. Create a wallet (generates a BIP-39 mnemonic via viem and saves to .env)
+node --input-type=module -e "
+import { generateMnemonic, english, mnemonicToAccount } from 'viem/accounts';
+import fs from 'fs';
+const mnemonic = generateMnemonic(english);
+fs.writeFileSync('.env', 'OWS_MNEMONIC=' + mnemonic + '\n');
+console.log('Address:', mnemonicToAccount(mnemonic).address);
+"
 
 # 3. Fund with testnet USDC from https://faucet.circle.com/ (select Arc Testnet)
 
-# 4. Deposit into Circle Gateway
-export OWS_MNEMONIC="your twelve word mnemonic phrase here"
+# 4. Deposit into Circle Gateway (scripts auto-load .env)
 node scripts/setup.mjs all       # approve + deposit 10 USDC
 
 # 5. Make a paid request
 node scripts/x402_client.mjs GET "https://api.aisa.one/apis/v2/twitter/user/info?userName=jack"
 ```
 
+Already have a mnemonic? Save it with `node scripts/save-mnemonic.mjs --mnemonic "your twelve word phrase"`.
+
 ### Examples
 
 ```bash
-export OWS_MNEMONIC="your twelve word mnemonic phrase here"
+# Scripts auto-load OWS_MNEMONIC from .env in the current directory.
 
 # Twitter user info (use userName, not screen_name)
 node scripts/x402_client.mjs GET "https://api.aisa.one/apis/v2/twitter/user/info?userName=jack"
