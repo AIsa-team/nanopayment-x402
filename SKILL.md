@@ -85,7 +85,7 @@ console.log('ADDRESS=' + account.address);
 
 This generates a BIP-39 mnemonic, derives the Ethereum address, and persists the mnemonic to `.env` — fully automated with no user interaction.
 
-**Warning: Circle Faucet is protected by reCAPTCHA — do NOT use browser automation tools (Claude in Chrome, Puppeteer, etc.) to interact with the faucet page. They will fail on the captcha.**
+**Browser automation policy:** Circle Faucet is protected by reCAPTCHA. Use Claude in Chrome to navigate to the faucet and **pre-fill the wallet address only**. Do NOT automate the reCAPTCHA, network selection confirmation, or the "Send 20 USDC" submit button — the user must complete those steps in the browser.
 
 Get the wallet address:
 ```bash
