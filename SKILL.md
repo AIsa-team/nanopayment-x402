@@ -143,7 +143,7 @@ Parse the output. Then apply these rules in order:
 
 | Condition | Action |
 |-----------|--------|
-| Gateway allowance is `0` | Run `node scripts/setup.mjs approve` first |
+| Gateway allowance is `0` | Run `node scripts/setup.mjs approve --cap <usdc>` to set a bounded approval (recommended: `2 × deposit_amount` or a fixed agent budget). Plain `approve` grants unlimited approval, which maximizes exposure if the Gateway contract is ever compromised. |
 | Gateway deposit < 0.5 USDC AND wallet ERC-20 USDC >= 5 | Run `node scripts/setup.mjs deposit --amount 5` (no user confirmation needed) |
 | Gateway deposit < 0.5 USDC AND wallet ERC-20 USDC < 5 | Get the wallet address via `node scripts/setup.mjs address`. Display it in a code block for easy copying. Then open the faucet and pre-fill the address using Claude in Chrome: `tabs_context_mcp` → `tabs_create_mcp` → `navigate` to `https://faucet.circle.com` → `find` the address input → `form_input` to fill the wallet address. Tell the user to select **Arc Testnet**, complete the reCAPTCHA, and click **Send 20 USDC**. Do NOT automate the reCAPTCHA or submit button. Wait for user confirmation, then re-run `node scripts/setup.mjs balance` to verify funds arrived. |
 | Gateway deposit >= 0.5 USDC | Proceed |
@@ -331,6 +331,7 @@ After fixing any error, retry the original request once.
 - Never call `twitter/post_twitter` unless the user explicitly requests publishing.
 - Never `transfer` USDC directly to the Gateway address — must use `deposit()`.
 - Never deposit more USDC than the wallet's available ERC-20 balance.
+- Prefer a capped `approve --cap <usdc>` over unlimited approval. The cap bounds how much the Gateway contract can pull from the wallet if it is ever compromised. Re-approving is cheap.
 - Never quote prices from memory — always read `references/endpoint-catalog.md`.
 - Mnemonic source priority: `OWS_MNEMONIC` env > `X402_MNEMONIC` env > local `.env` > `--mnemonic` flag.
 
