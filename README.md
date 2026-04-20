@@ -77,4 +77,4 @@ For programmatic use in Node.js, import the `createPayingFetch` function from `s
 - [Open Wallet Standard](https://openwallet.sh/) — Local wallet management for agents
 - [Circle Gateway](https://developers.circle.com/gateway/concepts/technical-guide) — Batched USDC settlement
 - [Arc Testnet](https://docs.arc.network/) — Circle's EVM L1 with native USDC
-- [AIsa API Docs](https://docs.aisa.one) — Full endpoint documentation
+- [AIsa API Docs](https://aisa.one/docs/api-reference) — Full endpoint documentation. Note: the docs' interactive "Try it" feature requires an API key (the x402 flow in this skill does not).
