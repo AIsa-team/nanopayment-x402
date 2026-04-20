@@ -69,6 +69,7 @@ For programmatic use in Node.js, import the `createPayingFetch` function from `s
 
 ## Changelog
 
+- **2026-04-20** — Added 23 CoinGecko endpoints ($0.008/call) and expanded the total from 79 to 102 endpoints across 7 categories.
 - **2026-04-16** — As part of the initiative supporting Agentic Economy on Arc hackathon, AIsa supports Arc testnet transactions until April 26, 2026 PT.
 
 ## Resources
