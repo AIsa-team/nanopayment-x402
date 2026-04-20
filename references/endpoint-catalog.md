@@ -7,7 +7,7 @@ description: Complete catalog of AIsa x402-paid /apis/v2/ endpoints with per-cal
 
 All endpoints use base URL `https://api.aisa.one` with the `/apis/v2/` path prefix. Prices are per call, charged in USDC via the x402 payment flow (Arc testnet, Circle Gateway settlement). Do not confuse `/apis/v1/` (API-key) with `/apis/v2/` (x402-paid).
 
-**Totals:** 102 endpoints across 7 categories. Source-of-truth: `https://console.aisa.one/category` (priceUsd = feePreCallRaw / 500000). Every price in this catalog has been validated against the server's signed 402 `payment-required` header and against end-to-end Circle Gateway settlement.
+**Totals:** 102 endpoints across 7 categories.
 
 ## Twitter (28 endpoints)
 
