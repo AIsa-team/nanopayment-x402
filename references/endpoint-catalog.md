@@ -7,7 +7,7 @@ description: Complete catalog of AIsa x402-paid /apis/v2/ endpoints with per-cal
 
 All endpoints use base URL `https://api.aisa.one` with the `/apis/v2/` path prefix. Prices are per call, charged in USDC via the x402 payment flow (Arc testnet, Circle Gateway settlement). Do not confuse `/apis/v1/` (API-key) with `/apis/v2/` (x402-paid).
 
-**Totals:** 79 endpoints across 6 categories.
+**Totals:** 102 endpoints across 7 categories. Source-of-truth: `https://console.aisa.one/category` (priceUsd = feePreCallRaw / 500000). Every price in this catalog has been validated against the server's signed 402 `payment-required` header and against end-to-end Circle Gateway settlement.
 
 ## Twitter (28 endpoints)
 
@@ -44,7 +44,7 @@ Category ID: 1 | Provider: Twitter / AISA_TWITTER
 | 27 | Post Twitter | `/apis/v2/twitter/post_twitter` | $0.010000 |
 | 28 | OAuth Twitter | `/apis/v2/twitter/auth_twitter` | $0.001000 |
 
-Notes: Twitter user endpoints require `userName` (not `screen_name`). Do not call `post_twitter` unless the user explicitly asks to publish.
+Notes: Twitter user endpoints require `userName` (not `screen_name`). The follower/following/verifiedFollowers endpoints require `user_id` (numeric, not username). Do not call `post_twitter` unless the user explicitly asks to publish.
 
 ## Search & Prediction Markets (20 endpoints)
 
@@ -81,7 +81,7 @@ Category ID: 3 | Provider: Financial
 
 | # | Name | Path | Price (USD) |
 |---|------|------|------------:|
-| 1 | Earnings Per Share / Analyst Estimates | `/apis/v2/financial/analyst-estimates` | $0.120000 |
+| 1 | Analyst Estimates | `/apis/v2/financial/analyst-estimates` | $0.120000 |
 | 2 | Company Facts (by ticker) | `/apis/v2/financial/company/facts` | $0.024000 |
 | 3 | Earnings | `/apis/v2/financial/earnings` | $0.012000 |
 | 4 | Earnings Press Releases (by ticker) | `/apis/v2/financial/earnings/press-releases` | $0.048000 |
@@ -144,6 +144,38 @@ Category ID: 5 | Provider: Youtube
 
 Notes: Requires both `q` and `engine=youtube`.
 
+## CoinGecko (23 endpoints)
+
+Category ID: 9 | Provider: CoinGecko
+
+| # | Name | Path | Price (USD) |
+|---|------|------|------------:|
+| 1 | Coins List (ID Map) | `/apis/v2/coingecko/api/v3/coins/list` | $0.008000 |
+| 2 | Coins List with Market Data | `/apis/v2/coingecko/api/v3/coins/markets` | $0.008000 |
+| 3 | Coin Data by ID | `/apis/v2/coingecko/api/v3/coins/{id}` | $0.008000 |
+| 4 | Coin Tickers by ID | `/apis/v2/coingecko/api/v3/coins/{id}/tickers` | $0.008000 |
+| 5 | Coin Historical Data by ID | `/apis/v2/coingecko/api/v3/coins/{id}/history` | $0.008000 |
+| 6 | Coin Historical Chart Data by ID | `/apis/v2/coingecko/api/v3/coins/{id}/market_chart` | $0.008000 |
+| 7 | Coin Historical Chart Data within Time Range by ID | `/apis/v2/coingecko/api/v3/coins/{id}/market_chart/range` | $0.008000 |
+| 8 | Coin OHLC Chart by ID | `/apis/v2/coingecko/api/v3/coins/{id}/ohlc` | $0.008000 |
+| 9 | Coin Data by Token Address | `/apis/v2/coingecko/api/v3/coins/{id}/contract/{contract_address}` | $0.008000 |
+| 10 | Coin Historical Chart Data by Token Address | `/apis/v2/coingecko/api/v3/coins/{id}/contract/{contract_address}/market_chart` | $0.008000 |
+| 11 | Coins Categories List (ID Map) | `/apis/v2/coingecko/api/v3/coins/categories/list` | $0.008000 |
+| 12 | Coins Categories List with Market Data | `/apis/v2/coingecko/api/v3/coins/categories` | $0.008000 |
+| 13 | Exchanges List with Data | `/apis/v2/coingecko/api/v3/exchanges` | $0.008000 |
+| 14 | Exchanges List (ID Map) | `/apis/v2/coingecko/api/v3/exchanges/list` | $0.008000 |
+| 15 | Exchange Data by ID | `/apis/v2/coingecko/api/v3/exchanges/{id}` | $0.008000 |
+| 16 | Exchange Tickers by ID | `/apis/v2/coingecko/api/v3/exchanges/{id}/tickers` | $0.008000 |
+| 17 | Exchange Volume Chart by ID | `/apis/v2/coingecko/api/v3/exchanges/{id}/volume_chart` | $0.008000 |
+| 18 | Exchange Volume Chart within Time Range by ID | `/apis/v2/coingecko/api/v3/exchanges/{id}/volume_chart/range` | $0.008000 |
+| 19 | Coin Price by IDs, Symbols, or Names | `/apis/v2/coingecko/api/v3/simple/price` | $0.008000 |
+| 20 | Coin Price by Token Addresses | `/apis/v2/coingecko/api/v3/simple/token_price/{id}` | $0.008000 |
+| 21 | Supported Currencies List | `/apis/v2/coingecko/api/v3/simple/supported_vs_currencies` | $0.008000 |
+| 22 | Trending Search List | `/apis/v2/coingecko/api/v3/search/trending` | $0.008000 |
+| 23 | Crypto News | `/apis/v2/coingecko/api/v3/news` | $0.008000 |
+
+Notes: CoinGecko endpoints mirror the upstream CoinGecko v3 API paths under the `/apis/v2/coingecko/` prefix. Flat price of $0.008000 per call across the whole category.
+
 ---
 
 ## Price Tiers (fast reference)
@@ -157,6 +189,7 @@ Notes: Requires both `q` and `engine=youtube`.
 | $0.002400 | $0.002400 | 5 |
 | $0.003600 | $0.003600 | 2 |
 | $0.007000 | $0.007000 | 1 |
+| $0.008000 | $0.008000 | 23 |
 | $0.009600 | $0.009600 | 4 |
 | $0.010000 | $0.010000 | 17 |
 | $0.012000 | $0.012000 | 7 |
@@ -171,6 +204,7 @@ Notes: Requires both `q` and `engine=youtube`.
 
 A 5 USDC Gateway deposit covers roughly:
 - ~11,363 Twitter `user/info` calls, or
+- ~625 CoinGecko calls (any endpoint), or
 - ~500 Perplexity Sonar calls, or
 - ~208 Stock Price Snapshot calls, or
 - ~41 full `financial/financials` pulls.
