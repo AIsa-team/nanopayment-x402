@@ -154,29 +154,29 @@ Category ID: 9 | Provider: CoinGecko
 
 | # | Name | Path | Price (USD) |
 |---|------|------|------------:|
-| 1 | Coins List (ID Map) | `/apis/v2/coingecko/api/v3/coins/list` | $0.008000 |
-| 2 | Coins List with Market Data | `/apis/v2/coingecko/api/v3/coins/markets` | $0.008000 |
-| 3 | Coin Data by ID | `/apis/v2/coingecko/api/v3/coins/{id}` | $0.008000 |
-| 4 | Coin Tickers by ID | `/apis/v2/coingecko/api/v3/coins/{id}/tickers` | $0.008000 |
-| 5 | Coin Historical Data by ID | `/apis/v2/coingecko/api/v3/coins/{id}/history` | $0.008000 |
-| 6 | Coin Historical Chart Data by ID | `/apis/v2/coingecko/api/v3/coins/{id}/market_chart` | $0.008000 |
-| 7 | Coin Historical Chart Data within Time Range by ID | `/apis/v2/coingecko/api/v3/coins/{id}/market_chart/range` | $0.008000 |
-| 8 | Coin OHLC Chart by ID | `/apis/v2/coingecko/api/v3/coins/{id}/ohlc` | $0.008000 |
-| 9 | Coin Data by Token Address | `/apis/v2/coingecko/api/v3/coins/{id}/contract/{contract_address}` | $0.008000 |
-| 10 | Coin Historical Chart Data by Token Address | `/apis/v2/coingecko/api/v3/coins/{id}/contract/{contract_address}/market_chart` | $0.008000 |
-| 11 | Coins Categories List (ID Map) | `/apis/v2/coingecko/api/v3/coins/categories/list` | $0.008000 |
-| 12 | Coins Categories List with Market Data | `/apis/v2/coingecko/api/v3/coins/categories` | $0.008000 |
-| 13 | Exchanges List with Data | `/apis/v2/coingecko/api/v3/exchanges` | $0.008000 |
-| 14 | Exchanges List (ID Map) | `/apis/v2/coingecko/api/v3/exchanges/list` | $0.008000 |
-| 15 | Exchange Data by ID | `/apis/v2/coingecko/api/v3/exchanges/{id}` | $0.008000 |
-| 16 | Exchange Tickers by ID | `/apis/v2/coingecko/api/v3/exchanges/{id}/tickers` | $0.008000 |
-| 17 | Exchange Volume Chart by ID | `/apis/v2/coingecko/api/v3/exchanges/{id}/volume_chart` | $0.008000 |
-| 18 | Exchange Volume Chart within Time Range by ID | `/apis/v2/coingecko/api/v3/exchanges/{id}/volume_chart/range` | $0.008000 |
-| 19 | Coin Price by IDs, Symbols, or Names | `/apis/v2/coingecko/api/v3/simple/price` | $0.008000 |
-| 20 | Coin Price by Token Addresses | `/apis/v2/coingecko/api/v3/simple/token_price/{id}` | $0.008000 |
-| 21 | Supported Currencies List | `/apis/v2/coingecko/api/v3/simple/supported_vs_currencies` | $0.008000 |
-| 22 | Trending Search List | `/apis/v2/coingecko/api/v3/search/trending` | $0.008000 |
-| 23 | Crypto News | `/apis/v2/coingecko/api/v3/news` | $0.008000 |
+| 1 | Coins List (ID Map) | `/apis/v2/coingecko/coins/list` | $0.008000 |
+| 2 | Coins List with Market Data | `/apis/v2/coingecko/coins/markets` | $0.008000 |
+| 3 | Coin Data by ID | `/apis/v2/coingecko/coins/{id}` | $0.008000 |
+| 4 | Coin Tickers by ID | `/apis/v2/coingecko/coins/{id}/tickers` | $0.008000 |
+| 5 | Coin Historical Data by ID | `/apis/v2/coingecko/coins/{id}/history` | $0.008000 |
+| 6 | Coin Historical Chart Data by ID | `/apis/v2/coingecko/coins/{id}/market_chart` | $0.008000 |
+| 7 | Coin Historical Chart Data within Time Range by ID | `/apis/v2/coingecko/coins/{id}/market_chart/range` | $0.008000 |
+| 8 | Coin OHLC Chart by ID | `/apis/v2/coingecko/coins/{id}/ohlc` | $0.008000 |
+| 9 | Coin Data by Token Address | `/apis/v2/coingecko/coins/{id}/contract/{contract_address}` | $0.008000 |
+| 10 | Coin Historical Chart Data by Token Address | `/apis/v2/coingecko/coins/{id}/contract/{contract_address}/market_chart` | $0.008000 |
+| 11 | Coins Categories List (ID Map) | `/apis/v2/coingecko/coins/categories/list` | $0.008000 |
+| 12 | Coins Categories List with Market Data | `/apis/v2/coingecko/coins/categories` | $0.008000 |
+| 13 | Exchanges List with Data | `/apis/v2/coingecko/exchanges` | $0.008000 |
+| 14 | Exchanges List (ID Map) | `/apis/v2/coingecko/exchanges/list` | $0.008000 |
+| 15 | Exchange Data by ID | `/apis/v2/coingecko/exchanges/{id}` | $0.008000 |
+| 16 | Exchange Tickers by ID | `/apis/v2/coingecko/exchanges/{id}/tickers` | $0.008000 |
+| 17 | Exchange Volume Chart by ID | `/apis/v2/coingecko/exchanges/{id}/volume_chart` | $0.008000 |
+| 18 | Exchange Volume Chart within Time Range by ID | `/apis/v2/coingecko/exchanges/{id}/volume_chart/range` | $0.008000 |
+| 19 | Coin Price by IDs, Symbols, or Names | `/apis/v2/coingecko/simple/price` | $0.008000 |
+| 20 | Coin Price by Token Addresses | `/apis/v2/coingecko/simple/token_price/{id}` | $0.008000 |
+| 21 | Supported Currencies List | `/apis/v2/coingecko/simple/supported_vs_currencies` | $0.008000 |
+| 22 | Trending Search List | `/apis/v2/coingecko/search/trending` | $0.008000 |
+| 23 | Crypto News | `/apis/v2/coingecko/news` | $0.008000 |
 
 Notes: CoinGecko endpoints mirror the upstream CoinGecko v3 API paths under the `/apis/v2/coingecko/` prefix. Flat price of $0.008000 per call across the whole category.
 
