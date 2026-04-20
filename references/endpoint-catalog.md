@@ -7,7 +7,7 @@ description: Complete catalog of AIsa x402-paid /apis/v2/ endpoints with per-cal
 
 All endpoints use base URL `https://api.aisa.one` with the `/apis/v2/` path prefix. Prices are per call, charged in USDC via the x402 payment flow (Arc testnet, Circle Gateway settlement). Do not confuse `/apis/v1/` (API-key) with `/apis/v2/` (x402-paid).
 
-**Totals:** 106 endpoints across 7 categories.
+**Totals:** 104 endpoints across 7 categories.
 
 ## Twitter (32 endpoints)
 
@@ -148,7 +148,7 @@ Category ID: 5 | Provider: Youtube
 
 Notes: Requires both `q` and `engine=youtube`.
 
-## CoinGecko (23 endpoints)
+## CoinGecko (21 endpoints)
 
 Category ID: 9 | Provider: CoinGecko
 
@@ -170,13 +170,11 @@ Category ID: 9 | Provider: CoinGecko
 | 14 | Exchanges List (ID Map) | `/apis/v2/coingecko/exchanges/list` | $0.008000 |
 | 15 | Exchange Data by ID | `/apis/v2/coingecko/exchanges/{id}` | $0.008000 |
 | 16 | Exchange Tickers by ID | `/apis/v2/coingecko/exchanges/{id}/tickers` | $0.008000 |
-| 17 | Exchange Volume Chart by ID | `/apis/v2/coingecko/exchanges/{id}/volume_chart` | $0.008000 |
-| 18 | Exchange Volume Chart within Time Range by ID | `/apis/v2/coingecko/exchanges/{id}/volume_chart/range` | $0.008000 |
-| 19 | Coin Price by IDs, Symbols, or Names | `/apis/v2/coingecko/simple/price` | $0.008000 |
-| 20 | Coin Price by Token Addresses | `/apis/v2/coingecko/simple/token_price/{id}` | $0.008000 |
-| 21 | Supported Currencies List | `/apis/v2/coingecko/simple/supported_vs_currencies` | $0.008000 |
-| 22 | Trending Search List | `/apis/v2/coingecko/search/trending` | $0.008000 |
-| 23 | Crypto News | `/apis/v2/coingecko/news` | $0.008000 |
+| 17 | Coin Price by IDs, Symbols, or Names | `/apis/v2/coingecko/simple/price` | $0.008000 |
+| 18 | Coin Price by Token Addresses | `/apis/v2/coingecko/simple/token_price/{id}` | $0.008000 |
+| 19 | Supported Currencies List | `/apis/v2/coingecko/simple/supported_vs_currencies` | $0.008000 |
+| 20 | Trending Search List | `/apis/v2/coingecko/search/trending` | $0.008000 |
+| 21 | Crypto News | `/apis/v2/coingecko/news` | $0.008000 |
 
 Notes: CoinGecko endpoints mirror the upstream CoinGecko v3 API paths under the `/apis/v2/coingecko/` prefix. Flat price of $0.008000 per call across the whole category.
 
@@ -193,7 +191,7 @@ Notes: CoinGecko endpoints mirror the upstream CoinGecko v3 API paths under the 
 | $0.002400 | $0.002400 | 5 |
 | $0.003600 | $0.003600 | 2 |
 | $0.007000 | $0.007000 | 1 |
-| $0.008000 | $0.008000 | 23 |
+| $0.008000 | $0.008000 | 21 |
 | $0.009600 | $0.009600 | 4 |
 | $0.010000 | $0.010000 | 17 |
 | $0.012000 | $0.012000 | 9 |
