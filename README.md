@@ -2,7 +2,7 @@
 
 Pay-per-call API access to AIsa endpoints using the [x402](https://www.x402.org/) HTTP nanopayment protocol across multiple chains. No API key needed — pay with USDC via [Circle Gateway](https://www.circle.com/gateway).
 
-**79 endpoints** across Twitter, Financial, Search, Scholar, Perplexity, and YouTube. Prices range from $0.00044 to $0.12 per call.
+**102 endpoints** across Twitter, Financial, Search, Scholar, Perplexity, YouTube, and CoinGecko. Prices range from $0.00044 to $0.12 per call.
 
 ## How It Works
 
@@ -63,7 +63,7 @@ For programmatic use in Node.js, import the `createPayingFetch` function from `s
 ## Documentation
 
 - **[SKILL.md](./SKILL.md)** — Full agent instructions, decision flow, examples, error handling, and guardrails
-- **[references/endpoint-catalog.md](./references/endpoint-catalog.md)** — Complete priced catalog of all 79 endpoints
+- **[references/endpoint-catalog.md](./references/endpoint-catalog.md)** — Complete priced catalog of all 102 endpoints
 - **[references/troubleshooting.md](./references/troubleshooting.md)** — Extended failure diagnostics
 - **[references/setup.md](./references/setup.md)** — Environment and runtime notes
 
