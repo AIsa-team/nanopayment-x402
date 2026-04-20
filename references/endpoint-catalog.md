@@ -7,9 +7,9 @@ description: Complete catalog of AIsa x402-paid /apis/v2/ endpoints with per-cal
 
 All endpoints use base URL `https://api.aisa.one` with the `/apis/v2/` path prefix. Prices are per call, charged in USDC via the x402 payment flow (Arc testnet, Circle Gateway settlement). Do not confuse `/apis/v1/` (API-key) with `/apis/v2/` (x402-paid).
 
-**Totals:** 102 endpoints across 7 categories.
+**Totals:** 106 endpoints across 7 categories.
 
-## Twitter (28 endpoints)
+## Twitter (32 endpoints)
 
 Category ID: 1 | Provider: Twitter / AISA_TWITTER
 
@@ -43,8 +43,12 @@ Category ID: 1 | Provider: Twitter / AISA_TWITTER
 | 26 | Get Space Detail | `/apis/v2/twitter/spaces/detail` | $0.002200 |
 | 27 | Post Twitter | `/apis/v2/twitter/post_twitter` | $0.010000 |
 | 28 | OAuth Twitter | `/apis/v2/twitter/auth_twitter` | $0.001000 |
+| 29 | Follow User | `/apis/v2/twitter/follow_twitter` | $0.018000 |
+| 30 | Unfollow User | `/apis/v2/twitter/unfollow_twitter` | $0.018000 |
+| 31 | Like Tweet | `/apis/v2/twitter/like_twitter` | $0.012000 |
+| 32 | Unlike Tweet | `/apis/v2/twitter/unlike_twitter` | $0.012000 |
 
-Notes: Twitter user endpoints require `userName` (not `screen_name`). The follower/following/verifiedFollowers endpoints require `user_id` (numeric, not username). Do not call `post_twitter` unless the user explicitly asks to publish.
+Notes: Twitter user endpoints require `userName` (not `screen_name`). The follower/following/verifiedFollowers endpoints require `user_id` (numeric, not username). The write endpoints (`post_twitter`, `follow_twitter`, `unfollow_twitter`, `like_twitter`, `unlike_twitter`) require a one-time OAuth link via `auth_twitter` and act on behalf of the linked source user — do not call them unless the user explicitly asks to publish, follow/unfollow, or like/unlike.
 
 ## Search & Prediction Markets (20 endpoints)
 
@@ -192,7 +196,8 @@ Notes: CoinGecko endpoints mirror the upstream CoinGecko v3 API paths under the 
 | $0.008000 | $0.008000 | 23 |
 | $0.009600 | $0.009600 | 4 |
 | $0.010000 | $0.010000 | 17 |
-| $0.012000 | $0.012000 | 7 |
+| $0.012000 | $0.012000 | 9 |
+| $0.018000 | $0.018000 | 2 |
 | $0.024000 | $0.024000 | 7 |
 | $0.036000 | $0.036000 | 2 |
 | $0.048000 | $0.048000 | 10 |
