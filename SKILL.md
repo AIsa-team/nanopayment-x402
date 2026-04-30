@@ -1,11 +1,11 @@
 ---
 name: nanopayment-x402
-description: Access AIsa x402-paid /apis/v2/ endpoints using Arc testnet USDC and Circle Gateway. Use when setting up x402 payments, creating or funding an Arc wallet, depositing into Circle Gateway, picking the right AIsa endpoint for a task, estimating per-call cost, or making paid AIsa API calls without an API key. 104 endpoints across Twitter, Financial, Search, Scholar, Perplexity, YouTube, and CoinGecko categories.
+description: Access AIsa x402-paid /apis/v2/ endpoints using mainnet USDC and Circle Gateway across 11 EVM chains (Ethereum, Base, Avalanche, Arbitrum, OP, Polygon, Unichain, Sonic, World Chain, Sei, HyperEVM). Use when setting up x402 payments, creating or funding a wallet, depositing into Circle Gateway on a specific chain, picking the right AIsa endpoint for a task, estimating per-call cost, or making paid AIsa API calls without an API key. 104 endpoints across Twitter, Financial, Search, Scholar, Perplexity, YouTube, and CoinGecko categories.
 ---
 
 # nanopayment-x402
 
-Pay-per-call API access to 104 AIsa endpoints via the x402 HTTP payment protocol. No API key needed — pays with USDC on Arc testnet via Circle Gateway.
+Pay-per-call API access to 104 AIsa endpoints via the x402 HTTP payment protocol. No API key needed — pays with USDC on any of 11 EVM mainnets via Circle Gateway. (Arc Testnet is in the chain registry for legacy wallets but is no longer accepted by AIsa for paid endpoints.)
 
 ## How It Works
 
@@ -28,15 +28,15 @@ Agent ──► AIsa API (HTTP 402) ──► Agent signs EIP-712 payment ──
 | Item | Value |
 |------|-------|
 | API Base | `https://api.aisa.one/apis/v2/` |
-| Chain | Arc Testnet (`5042002`) |
-| RPC | `https://rpc.testnet.arc.network` |
-| Explorer | https://testnet.arcscan.app/ |
-| Faucet | https://faucet.circle.com/ |
-| USDC Token | `0x3600000000000000000000000000000000000000` |
-| USDC Decimals | 6 (ERC-20 token), 18 (native gas) |
-| Gateway | `0x0077777d7eba4688bdef3e311b846f25870a19b9` |
+| Accepted chains (mainnet) | `ethereum` `base` `avalanche` `arbitrum` `optimism` `polygon` `unichain` `sonic` `worldchain` `sei` `hyperevm` |
+| Chain selection | `--chain <key\|id>` flag or `OWS_CHAIN` env (no default — pick explicitly) |
+| Gateway Wallet (mainnet) | `0x77777777Dcc4d5A8B6E418Fd04D8997ef11000eE` (same on every EVM mainnet) |
+| USDC | 6 decimals on every chain. Per-chain USDC contract addresses in `scripts/chains.mjs` |
+| Per-chain RPC override | `OWS_RPC_<KEY>` env (e.g. `OWS_RPC_BASE`) |
+| Chain registry | `scripts/chains.mjs` |
 | Endpoint catalog | `references/endpoint-catalog.md` |
 | API Path Prefix | `/apis/v2/` (x402) vs `/apis/v1/` (API key) |
+| List chains | `node scripts/setup.mjs chains` |
 
 ## Prerequisites
 
@@ -85,70 +85,63 @@ console.log('ADDRESS=' + account.address);
 
 This generates a BIP-39 mnemonic, derives the Ethereum address, and persists the mnemonic to `.env` — fully automated with no user interaction.
 
-**Browser automation policy:** Circle Faucet is protected by reCAPTCHA. Use Claude in Chrome to navigate to the faucet and **pre-fill the wallet address only**. Do NOT automate the reCAPTCHA, network selection confirmation, or the "Send 20 USDC" submit button — the user must complete those steps in the browser.
+**Mainnet funding policy:** AIsa-accepted chains are mainnets. There is no faucet — the user must fund the wallet with real USDC + native gas. Do NOT attempt to automate funding in a browser.
 
 Get the wallet address:
 ```bash
 node scripts/setup.mjs address
 ```
 
-Then display the wallet address prominently and open the faucet with the address pre-filled:
+Display the wallet address prominently and tell the user:
 
-1. **Show the wallet address** — display it in a formatted code block so the user can easily copy it:
-   ```
-   Your new wallet address (click to copy):
+```
+Your new wallet address (click to copy):
 
-   `0x<WALLET_ADDRESS>`
+`0x<WALLET_ADDRESS>`
 
-   Fund this wallet with testnet USDC to get started.
-   Opening the Circle Faucet now...
-   ```
+Fund this wallet with USDC (and a small amount of native gas) on one of the
+11 AIsa-accepted EVM mainnets — e.g. transfer USDC from an exchange or another
+wallet to this address on Base, Arbitrum, OP, etc. Pick whichever chain has the
+cheapest gas + lowest USDC bridge cost for your situation; the Gateway unifies
+balances across all of them.
 
-2. **Open the faucet and pre-fill the address** — use Claude in Chrome to navigate to the faucet and fill the wallet address field:
-   ```
-   tabs_context_mcp (createIfEmpty: true)   → get/create tab group
-   tabs_create_mcp                          → create a new tab
-   navigate (url: "https://faucet.circle.com", tabId: <new_tab>)
-   ```
-   Wait for the page to load, then find and fill the address input:
-   ```
-   find (query: "wallet address input", tabId: <tab>)
-   form_input (ref: <address_input_ref>, value: "<WALLET_ADDRESS>", tabId: <tab>)
-   ```
-
-3. **Tell the user** to complete the remaining steps in the browser tab:
-   - Select **Arc Testnet** as the network
-   - Complete the reCAPTCHA
-   - Click **Send 20 USDC**
-
-   **⚠️ Do NOT use browser automation for the reCAPTCHA or submit button — only pre-fill the address field.**
-
-Wait for the user to confirm they have completed the faucet claim, then verify the balance:
-
-```bash
-node scripts/setup.mjs balance
+Run `node scripts/setup.mjs chains` to see the full list.
 ```
 
-If ERC-20 USDC is still `0`, the faucet claim may not have gone through — ask the user to try again.
+Wait for the user to confirm they have funded the wallet, ask which chain they sent to, then verify:
 
-Once funded, continue to step 3 to approve and deposit into the Gateway.
+```bash
+node scripts/setup.mjs balance --chain <key>
+# or to scan every chain in the registry:
+node scripts/setup.mjs balance --all
+```
+
+If ERC-20 USDC is still `0` on the chain they specified, the transfer may not have landed — ask them to wait for confirmation or recheck the destination chain.
+
+Once funded, continue to step 3 to approve and deposit into the Gateway on that chain.
 
 ### 3. Check Balance and Auto-Deposit
 
+First, identify the active chain — `OWS_CHAIN` env, prior conversation, or ask the user. Then:
+
 ```bash
-node scripts/setup.mjs balance
+node scripts/setup.mjs balance --chain <key>
+# Or scan every chain in the registry:
+node scripts/setup.mjs balance --all
 ```
 
-Parse the output. Then apply these rules in order:
+⚠ Mainnet — every approve/deposit costs real gas and locks real USDC. Confirm with the user before each write op above a small budget. Apply these rules in order on the chosen chain:
 
 | Condition | Action |
 |-----------|--------|
-| Gateway allowance is `0` | Run `node scripts/setup.mjs approve --cap <usdc>` to set a bounded approval (recommended: `2 × deposit_amount` or a fixed agent budget). Plain `approve` grants unlimited approval, which maximizes exposure if the Gateway contract is ever compromised. |
-| Gateway deposit < 0.5 USDC AND wallet ERC-20 USDC >= 5 | Run `node scripts/setup.mjs deposit --amount 5` (no user confirmation needed) |
-| Gateway deposit < 0.5 USDC AND wallet ERC-20 USDC < 5 | Get the wallet address via `node scripts/setup.mjs address`. Display it in a code block for easy copying. Then open the faucet and pre-fill the address using Claude in Chrome: `tabs_context_mcp` → `tabs_create_mcp` → `navigate` to `https://faucet.circle.com` → `find` the address input → `form_input` to fill the wallet address. Tell the user to select **Arc Testnet**, complete the reCAPTCHA, and click **Send 20 USDC**. Do NOT automate the reCAPTCHA or submit button. Wait for user confirmation, then re-run `node scripts/setup.mjs balance` to verify funds arrived. |
-| Gateway deposit >= 0.5 USDC | Proceed |
+| Gateway allowance is `0` on the chosen chain | Run `node scripts/setup.mjs approve --chain <key> --cap <usdc>` to set a bounded approval (recommended: `2 × deposit_amount` or a fixed agent budget). Plain `approve` grants unlimited approval, which maximizes exposure if the Gateway contract is ever compromised. |
+| Gateway deposit < 0.5 USDC AND wallet ERC-20 USDC >= 5 | Run `node scripts/setup.mjs deposit --chain <key> --amount 5` (mainnet — confirm amount with user first) |
+| Gateway deposit < 0.5 USDC AND wallet ERC-20 USDC < 5 | Wallet underfunded on this chain. Show the user the wallet address (`node scripts/setup.mjs address`) and ask them to fund it on this chain (or to specify a different chain that already has USDC). No automated funding — there is no mainnet faucet. After they confirm a transfer, re-check balance. |
+| User wants to deposit across multiple chains in one shot | Run `node scripts/setup.mjs deposit-all --amount <usdc>` first (dry-run prints the plan), then re-run with `--execute` after user confirms. Mainnet — never auto-`--execute` without explicit user approval. |
+| Gateway deposit >= 0.5 USDC on any AIsa-accepted chain | Proceed (Gateway unifies balances across chains, so a deposit on any one of them can pay for an API call) |
 
 > **Warning:** Do NOT directly transfer USDC to the Gateway address. You must call `deposit()` or the funds will be lost.
+> **Warning:** All operations in this step are real mainnet transactions. Never auto-approve or auto-deposit above the user's stated budget without explicit confirmation.
 
 ### 4. Look Up Endpoint
 
@@ -182,8 +175,10 @@ Parse the output. Then apply these rules in order:
 ### 5. Make the Request
 
 ```bash
-node scripts/x402_client.mjs <METHOD> "<full_url>" [--body '<json>']
+node scripts/x402_client.mjs <METHOD> "<full_url>" [--body '<json>'] [--chain <key>]
 ```
+
+The client reads the server's HTTP 402 response and picks a chain from `accepts` that matches the local registry. If `--chain` (or `OWS_CHAIN`) is set and the server offers it, the client uses that one.
 
 POST endpoints with no body still need `--body '{}'`.
 
@@ -193,35 +188,21 @@ Output: JSON on stdout, status info on stderr. Parse stdout for the API response
 
 When the user asks for transaction history, wallet activity, or spending summary, compile both on-chain and off-chain (x402 API) activity:
 
-**On-chain transactions:**
+**On-chain transactions:** For each chain the user has interacted with, look up the per-chain RPC in `scripts/chains.mjs` (or use the chain's block explorer). Fetch transaction count and per-tx receipts via `eth_getTransactionCount` / `eth_getTransactionReceipt` against the appropriate RPC.
 
-1. Get the transaction count:
-```bash
-curl -s -X POST https://rpc.testnet.arc.network \
-  -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","id":1,"method":"eth_getTransactionCount","params":["<WALLET_ADDRESS>","latest"]}'
-```
+Known contracts (same on every EVM mainnet):
+- Per-chain USDC token contract — see `scripts/chains.mjs` (approve txs)
+- `0x77777777Dcc4d5A8B6E418Fd04D8997ef11000eE` — Gateway Wallet (deposit txs)
 
-2. For each known transaction hash (from approve/deposit operations earlier in the session), fetch the receipt:
-```bash
-curl -s -X POST https://rpc.testnet.arc.network \
-  -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","id":1,"method":"eth_getTransactionReceipt","params":["<TX_HASH>"]}'
-```
-
-Extract from each receipt: `transactionHash`, `blockNumber` (hex→decimal), `status` (`0x1`=Success), `gasUsed` (hex→decimal), and `to` address. Known contracts:
-- `0x3600000000000000000000000000000000000000` — USDC Token (approve txs)
-- `0x0077777d7eba4688bdef3e311b846f25870a19b9` — Gateway (deposit txs)
-
-**Off-chain x402 API calls:** Track all x402 API calls made during the session. For each call, record the endpoint name, path, and per-call cost (from `references/endpoint-catalog.md`). Sum the total API spend.
+**Off-chain x402 API calls:** Track all x402 API calls made during the session. For each call, record the endpoint name, path, per-call cost (from `references/endpoint-catalog.md`), and which chain settled the payment. Sum the total API spend.
 
 **Current balance:**
 
 ```bash
-node scripts/setup.mjs balance
+node scripts/setup.mjs balance --all
 ```
 
-This shows ERC-20 USDC in wallet, Gateway allowance, and remaining Gateway deposit.
+This shows ERC-20 USDC and Gateway allowance per chain. Gateway deposit balance is unified across chains — query Circle's Gateway REST API (`POST https://gateway-api.circle.com/v1/balances`) for the live unified balance.
 
 **Present the results as three tables:**
 1. **On-Chain Transactions** — hash, block, action (Approve/Deposit), target contract, gas used, status
@@ -315,13 +296,14 @@ Posting a tweet requires Twitter OAuth authorization. Do NOT ask the user for an
 
 | Error / Status | Diagnosis | Fix |
 |----------------|-----------|-----|
-| 403 + `"Pre-deduction failed"` | Insufficient Gateway deposit | Run step 3 (balance check + auto-deposit) |
+| 403 + `"Pre-deduction failed"` | Insufficient Gateway deposit (across all chains) | Run step 3 — confirm chain with user, then `setup.mjs all --chain <key> --amount <N>` |
 | `invalid_signature` | Wrong EIP-712 verifyingContract | Already handled by `x402_client.mjs` — if still failing, check `extra.verifyingContract` in 402 response |
-| `insufficient_balance` | No USDC deposited in Gateway | `node scripts/setup.mjs deposit --amount 5` |
+| `insufficient_balance` | No USDC deposited in Gateway on any chain | `node scripts/setup.mjs deposit --chain <key> --amount 5` |
+| `authorization_validity_too_short` | Server rejected the signed authorization window | Check the system clock and the `validAfter`/`validBefore` calc in `x402_client.mjs` |
+| Server offered no networks in our registry | Client and server disagree on supported chains | Compare `accepts` in 402 response against `scripts/chains.mjs` and add any missing chain |
 | `Invalid price: $0.000000` | Upstream pricing bug | Still use x402 flow; report as upstream issue |
 | Empty 200 response | Misleading success | Inspect response body, not just status code |
 | Mnemonic not found | Env var not propagated to process | Run `node scripts/save-mnemonic.mjs --mnemonic "..."` to persist in `.env` |
-| `UnsupportedChain` (ows CLI) | Known OWS issue with testnet chain IDs | Use the JS client instead of `ows pay request` |
 
 After fixing any error, retry the original request once.
 
@@ -341,8 +323,10 @@ After fixing any error, retry the original request once.
 |------|---------|
 | `scripts/check-env.sh` | Verify prerequisites, env vars, connectivity |
 | `scripts/save-mnemonic.mjs` | Persist mnemonic to local `.env` |
-| `scripts/setup.mjs` | Balance check, ERC-20 approve, Gateway deposit |
-| `scripts/x402_client.mjs` | Make paid x402 API requests |
+| `scripts/chains.mjs` | Chain registry: 11 EVM mainnets + Arc Testnet (legacy). USDC/Gateway/RPC per chain. |
+| `scripts/setup.mjs` | Balance check, ERC-20 approve, Gateway deposit (per chain via `--chain`, or all chains via `deposit-all`) |
+| `scripts/x402_client.mjs` | Make paid x402 API requests; matches server `accepts` against the chain registry |
+| `wallet.ows.json` | [OpenWallet Standard](https://docs.openwallet.sh/) `WalletDescriptor` listing the 11 EVM mainnet accounts. Capability declaration only; secret remains in `.env`. |
 | `references/endpoint-catalog.md` | All 104 endpoints with prices — authoritative source |
 | `references/earnings-press-releases-tickers.md` | Supported tickers for `/financial/earnings/press-releases` (2776 tickers) |
 | `references/setup.md` | Environment and runtime notes |
@@ -353,5 +337,5 @@ After fixing any error, retry the original request once.
 - [x402 Protocol](https://www.x402.org/) — HTTP payment standard
 - [Open Wallet Standard](https://openwallet.sh/) — Local wallet management for agents
 - [Circle Gateway](https://developers.circle.com/gateway/concepts/technical-guide) — Batched USDC settlement
-- [Arc Testnet](https://docs.arc.network/) — Circle's EVM L1 with native USDC
+- [aisa-proxy](https://github.com/AIsa-team/aisa-proxy) — Upstream AIsa x402 server (the `X402_CHAIN` config drives which networks `accepts` advertises)
 - [AIsa API Docs](https://docs.aisa.one) — Full endpoint documentation
