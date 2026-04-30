@@ -2,17 +2,21 @@
 /**
  * x402 Payment Client — pay-per-call API requests via Circle Gateway.
  *
+ * Supports any chain in scripts/chains.mjs. The server's HTTP 402 response
+ * lists `accepts` networks; the client picks the highest-priority match
+ * against the local registry.
+ *
  * Usage:
- *   node x402_client.mjs <method> <url> [--body <json>] [--mnemonic <phrase>]
+ *   node x402_client.mjs <method> <url> [--body <json>] [--mnemonic <phrase>] [--chain <key>]
  *
  * Examples:
  *   node x402_client.mjs POST "https://api.aisa.one/apis/v2/scholar/search/scholar?query=AI" --body '{}'
- *   node x402_client.mjs GET  "https://api.aisa.one/apis/v2/polymarket/markets?search=election"
+ *   node x402_client.mjs GET  "https://api.aisa.one/apis/v2/polymarket/markets?search=election" --chain base
  *
  * Environment:
- *   OWS_MNEMONIC  — BIP-39 mnemonic for the paying wallet (or use --mnemonic)
- *   OWS_RPC_URL   — Arc testnet RPC (default: https://rpc.testnet.arc.network)
- *   OWS_CHAIN_ID  — Preferred chain ID (default: 5042002)
+ *   OWS_MNEMONIC   BIP-39 mnemonic for the paying wallet (or use --mnemonic)
+ *   OWS_CHAIN      Preferred chain key (e.g. "base") — used if server offers it
+ *   OWS_RPC_<KEY>  Per-chain RPC override (e.g. OWS_RPC_BASE)
  */
 
 import fs from "fs";
@@ -21,9 +25,10 @@ import { wrapFetchWithPayment, x402Client } from "@x402/fetch";
 import { toClientEvmSigner } from "@x402/evm";
 import { createWalletClient, createPublicClient, http, getAddress } from "viem";
 import { mnemonicToAccount } from "viem/accounts";
+import { CHAINS, getChain, listChains, toViemChain } from "./chains.mjs";
 
 // ---------------------------------------------------------------------------
-// Config
+// .env loader
 // ---------------------------------------------------------------------------
 
 const envPath = path.resolve(process.cwd(), ".env");
@@ -38,14 +43,9 @@ if (fs.existsSync(envPath)) {
   }
 }
 
-const RPC_URL = process.env.OWS_RPC_URL || "https://rpc.testnet.arc.network";
-const PREFERRED_CHAIN = `eip155:${process.env.OWS_CHAIN_ID || "5042002"}`;
-
-const SUPPORTED_NETWORKS = [
-  "eip155:5042002", "eip155:11155111", "eip155:84532", "eip155:43113",
-  "eip155:421614", "eip155:14601", "eip155:4801", "eip155:1328",
-  "eip155:998", "eip155:11155420", "eip155:80002", "eip155:1301",
-];
+// All eip155 networks the local registry knows about — used to register
+// schemes with the x402 client. The server may offer any subset.
+const SUPPORTED_NETWORKS = listChains().map((c) => c.network);
 
 // ---------------------------------------------------------------------------
 // GatewayEvmScheme — signs x402 payments using Circle Gateway's EIP-712 domain
@@ -75,7 +75,10 @@ class GatewayEvmScheme {
     };
 
     const chainIdMatch = paymentRequirements.network.match(/eip155:(\d+)/);
-    const chainId = chainIdMatch ? parseInt(chainIdMatch[1]) : 5042002;
+    const chainId = chainIdMatch ? parseInt(chainIdMatch[1]) : null;
+    if (chainId == null) {
+      throw new Error(`Cannot parse chainId from network: ${paymentRequirements.network}`);
+    }
 
     // Circle Gateway: use extra.verifyingContract, NOT the asset address
     const domain = {
@@ -122,44 +125,78 @@ class GatewayEvmScheme {
 // Build paying fetch
 // ---------------------------------------------------------------------------
 
+/**
+ * options.preferredChainKey — registry key (e.g. "base"). If the server's
+ *   accepts list contains that chain, it's used. Otherwise the first matching
+ *   accepts entry that's in the local registry is used.
+ */
 export function createPayingFetch(mnemonic, options = {}) {
-  const rpcUrl = options.rpcUrl || RPC_URL;
-  const preferredChain = options.preferredChain || PREFERRED_CHAIN;
+  const preferredKey =
+    options.preferredChainKey || process.env.OWS_CHAIN || null;
+  const preferred = preferredKey ? getChain(preferredKey) : null;
 
-  const arcTestnet = {
-    id: parseInt(preferredChain.split(":")[1]),
-    name: "Arc Testnet",
-    nativeCurrency: { name: "USDC", symbol: "USDC", decimals: 18 },
-    rpcUrls: { default: { http: [rpcUrl] } },
+  // Build a wallet client per accepted chain, lazily. We need the signer at
+  // payment time, and the chain isn't known until the server's accepts are
+  // returned. Cache by chainId.
+  const account = mnemonicToAccount(mnemonic);
+  const signerCache = new Map();
+
+  function signerFor(chainId) {
+    if (signerCache.has(chainId)) return signerCache.get(chainId);
+    const chain = getChain(chainId);
+    if (!chain) {
+      throw new Error(`Server offered chainId ${chainId}, but it's not in the local chain registry. Add it to scripts/chains.mjs.`);
+    }
+    const viemChain = toViemChain(chain);
+    const walletClient = createWalletClient({
+      account,
+      chain: viemChain,
+      transport: http(chain.rpc),
+    });
+    walletClient.address = walletClient.account.address;
+    const publicClient = createPublicClient({
+      chain: viemChain,
+      transport: http(chain.rpc),
+    });
+    const signer = toClientEvmSigner(walletClient, publicClient);
+    const scheme = new GatewayEvmScheme(signer);
+    const entry = { scheme, chain };
+    signerCache.set(chainId, entry);
+    return entry;
+  }
+
+  // Wrap the scheme registration with a lazy resolver: when x402Client picks an
+  // accepts entry, it calls scheme.createPaymentPayload — we route to the right
+  // per-chain signer at that moment.
+  const dispatcherScheme = {
+    scheme: "exact",
+    createPaymentPayload: async (x402Version, paymentRequirements) => {
+      const m = paymentRequirements.network.match(/eip155:(\d+)/);
+      const chainId = m ? parseInt(m[1]) : null;
+      const { scheme } = signerFor(chainId);
+      return scheme.createPaymentPayload(x402Version, paymentRequirements);
+    },
   };
 
-  const account = mnemonicToAccount(mnemonic);
-  const walletClient = createWalletClient({
-    account,
-    chain: arcTestnet,
-    transport: http(rpcUrl),
-  });
-  walletClient.address = walletClient.account.address;
-
-  const publicClient = createPublicClient({
-    chain: arcTestnet,
-    transport: http(rpcUrl),
-  });
-
-  const evmSigner = toClientEvmSigner(walletClient, publicClient);
-  const scheme = new GatewayEvmScheme(evmSigner);
-
   const client = new x402Client((_, accepts) => {
-    return accepts.find((a) => a.network === preferredChain) || accepts[0];
+    // Filter to networks we know about locally.
+    const known = accepts.filter((a) => getChain(a.network));
+    if (known.length === 0) {
+      throw new Error(`Server offered no networks in our registry. accepts=${accepts.map((a) => a.network).join(",")}`);
+    }
+    if (preferred) {
+      const match = known.find((a) => a.network === preferred.network);
+      if (match) return match;
+    }
+    return known[0];
   });
 
-  SUPPORTED_NETWORKS.forEach((n) => client.register(n, scheme));
+  SUPPORTED_NETWORKS.forEach((n) => client.register(n, dispatcherScheme));
 
   return {
     fetch: wrapFetchWithPayment(fetch, client),
     address: account.address,
-    walletClient,
-    publicClient,
+    preferredChain: preferred,
   };
 }
 
@@ -171,18 +208,24 @@ async function main() {
   const args = process.argv.slice(2);
 
   if (args.length < 2 || args.includes("--help") || args.includes("-h")) {
-    console.log(`Usage: node x402_client.mjs <METHOD> <URL> [--body <json>] [--mnemonic <phrase>] [--mnemonic-env <ENV_NAME>]
+    console.log(`Usage: node x402_client.mjs <METHOD> <URL> [--body <json>] [--mnemonic <phrase>] [--mnemonic-env <ENV_NAME>] [--chain <key>]
 
 Examples:
   node x402_client.mjs POST "https://api.aisa.one/apis/v2/scholar/search/scholar?query=AI" --body '{}'
   node x402_client.mjs GET  "https://api.aisa.one/apis/v2/polymarket/markets?search=election"
-  node x402_client.mjs POST "https://api.aisa.one/apis/v2/scholar/search/scholar?query=bitcoin" --body '{}' --mnemonic-env OWS_MNEMONIC
+  node x402_client.mjs GET  "https://api.aisa.one/apis/v2/twitter/user/info?userName=jack" --chain base
+
+Options:
+  --body <json>        Request body (default: '{}' for POST, none for GET)
+  --mnemonic <phrase>  Wallet mnemonic
+  --mnemonic-env <V>   Read mnemonic from arbitrary env var name
+  --chain <key>        Preferred chain key from registry (e.g. "base", "ethereum")
 
 Environment:
-  OWS_MNEMONIC  BIP-39 mnemonic for the paying wallet
-  X402_MNEMONIC Alternate mnemonic env name
-  OWS_RPC_URL   Arc testnet RPC (default: https://rpc.testnet.arc.network)
-  OWS_CHAIN_ID  Preferred chain ID (default: 5042002)`);
+  OWS_MNEMONIC   BIP-39 mnemonic for the paying wallet
+  X402_MNEMONIC  Alternate mnemonic env name
+  OWS_CHAIN      Default preferred chain key
+  OWS_RPC_<KEY>  Per-chain RPC override (e.g. OWS_RPC_BASE)`);
     process.exit(0);
   }
 
@@ -192,28 +235,27 @@ Environment:
   let body = undefined;
   let mnemonic = process.env.OWS_MNEMONIC || process.env.X402_MNEMONIC;
   let mnemonicEnvName = undefined;
+  let preferredChainKey = undefined;
 
   for (let i = 2; i < args.length; i++) {
-    if (args[i] === "--body" && args[i + 1]) {
-      body = args[++i];
-    } else if (args[i] === "--mnemonic" && args[i + 1]) {
-      mnemonic = args[++i];
-    } else if (args[i] === "--mnemonic-env" && args[i + 1]) {
-      mnemonicEnvName = args[++i];
-    }
+    if (args[i] === "--body" && args[i + 1]) body = args[++i];
+    else if (args[i] === "--mnemonic" && args[i + 1]) mnemonic = args[++i];
+    else if (args[i] === "--mnemonic-env" && args[i + 1]) mnemonicEnvName = args[++i];
+    else if (args[i] === "--chain" && args[i + 1]) preferredChainKey = args[++i];
   }
 
-  if (!mnemonic && mnemonicEnvName) {
-    mnemonic = process.env[mnemonicEnvName];
-  }
+  if (!mnemonic && mnemonicEnvName) mnemonic = process.env[mnemonicEnvName];
 
   if (!mnemonic) {
-    console.error("Error: mnemonic not found. Set OWS_MNEMONIC or X402_MNEMONIC in the agent environment, or pass --mnemonic-env / --mnemonic.");
+    console.error("Error: mnemonic not found. Set OWS_MNEMONIC or X402_MNEMONIC, use a local .env, or pass --mnemonic-env / --mnemonic.");
     process.exit(1);
   }
 
-  const { fetch: payingFetch, address } = createPayingFetch(mnemonic);
+  const { fetch: payingFetch, address, preferredChain } = createPayingFetch(mnemonic, {
+    preferredChainKey,
+  });
   console.error(`Wallet: ${address}`);
+  if (preferredChain) console.error(`Preferred chain: ${preferredChain.name} (${preferredChain.id})`);
   console.error(`Request: ${method} ${url}`);
 
   const opts = {
@@ -221,7 +263,6 @@ Environment:
     headers: { "Content-Type": "application/json" },
   };
   if (body) opts.body = body;
-  // POST endpoints with no body still need '{}'
   if (method === "POST" && !body) opts.body = "{}";
 
   const res = await payingFetch(url, opts);
@@ -229,22 +270,19 @@ Environment:
 
   const text = await res.text();
 
-  // Detect 403 pre-deduction failures and provide actionable instructions
   if (res.status === 403 && text.includes("Pre-deduction failed")) {
-    console.error("\n⚠ Insufficient AIsa API quota.");
+    console.error("\n⚠ Insufficient AIsa Gateway balance.");
     console.error("Steps to resolve:");
-    console.error("  1. Check current balance:");
-    console.error("     node scripts/setup.mjs balance");
-    console.error("  2. If wallet USDC balance on Arc testnet is below 5 USDC, claim more from the faucet:");
-    console.error("     https://faucet.circle.com/");
-    console.error("  3. Deposit USDC into the Gateway contract:");
-    console.error("     node scripts/setup.mjs deposit --amount 5");
-    console.error("  4. Retry the failed request.\n");
+    console.error("  1. Check balances across all chains:");
+    console.error("     node scripts/setup.mjs balance --all");
+    console.error("  2. Pick a chain to deposit on (e.g. base) and approve + deposit USDC:");
+    console.error("     node scripts/setup.mjs all --chain base --amount 5");
+    console.error("  3. Retry the request.\n");
+    console.error("AIsa-accepted chains: ethereum, base, avalanche, arbitrum, optimism,");
+    console.error("polygon, unichain, sonic, worldchain, sei, hyperevm.\n");
   }
 
-  // Output JSON to stdout for piping
   process.stdout.write(text + "\n");
-
   process.exit(res.ok ? 0 : 1);
 }
 

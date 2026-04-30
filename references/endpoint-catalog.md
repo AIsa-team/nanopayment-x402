@@ -1,11 +1,11 @@
 ---
 name: aisa-endpoints-catalog
-description: Complete catalog of AIsa x402-paid /apis/v2/ endpoints with per-call USD prices. Use as the authoritative reference when selecting, pricing, or invoking AIsa endpoints via the Arc-x402 skill.
+description: Complete catalog of AIsa x402-paid /apis/v2/ endpoints with per-call USD prices. Use as the authoritative reference when selecting, pricing, or invoking AIsa endpoints via the nanopayment-x402 skill.
 ---
 
 # AIsa x402 Endpoint Catalog — Complete Price List
 
-All endpoints use base URL `https://api.aisa.one` with the `/apis/v2/` path prefix. Prices are per call, charged in USDC via the x402 payment flow (Arc testnet, Circle Gateway settlement). Do not confuse `/apis/v1/` (API-key) with `/apis/v2/` (x402-paid).
+All endpoints use base URL `https://api.aisa.one` with the `/apis/v2/` path prefix. Prices are per call, charged in USDC via the x402 payment flow (settled on any of 11 EVM mainnets via Circle Gateway). Do not confuse `/apis/v1/` (API-key) with `/apis/v2/` (x402-paid).
 
 **Totals:** 104 endpoints across 7 categories.
 

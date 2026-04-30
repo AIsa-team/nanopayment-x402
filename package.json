@@ -1,13 +1,12 @@
 {
   "name": "@openclaw/x402-payment",
-  "version": "0.1.0",
-  "description": "Pay-per-call API access using x402 protocol via Circle Gateway on Arc testnet",
+  "version": "0.2.0",
+  "description": "Pay-per-call API access using x402 protocol via Circle Gateway across 11 EVM mainnets",
   "type": "module",
   "scripts": {
-    "setup": "node scripts/setup.mjs all",
-    "balance": "node scripts/setup.mjs balance",
-    "approve": "node scripts/setup.mjs approve",
-    "deposit": "node scripts/setup.mjs deposit"
+    "setup": "node scripts/setup.mjs",
+    "chains": "node scripts/setup.mjs chains",
+    "balance": "node scripts/setup.mjs balance --all"
   },
   "dependencies": {
     "@x402/evm": "^2.9.0",

@@ -1,0 +1,88 @@
+{
+  "ows_version": 2,
+  "id": "fb4d7e4f-f7b5-4a66-8322-af0ac1f0fbe6",
+  "name": "nanopayment-x402-agent",
+  "created_at": "2026-04-30T21:28:57Z",
+  "key_type": "mnemonic",
+  "accounts": [
+    {
+      "account_id": "eip155:1:0x0000000000000000000000000000000000000000",
+      "address": "0x0000000000000000000000000000000000000000",
+      "chain_id": "eip155:1",
+      "derivation_path": "m/44'/60'/0'/0/0"
+    },
+    {
+      "account_id": "eip155:8453:0x0000000000000000000000000000000000000000",
+      "address": "0x0000000000000000000000000000000000000000",
+      "chain_id": "eip155:8453",
+      "derivation_path": "m/44'/60'/0'/0/0"
+    },
+    {
+      "account_id": "eip155:43114:0x0000000000000000000000000000000000000000",
+      "address": "0x0000000000000000000000000000000000000000",
+      "chain_id": "eip155:43114",
+      "derivation_path": "m/44'/60'/0'/0/0"
+    },
+    {
+      "account_id": "eip155:42161:0x0000000000000000000000000000000000000000",
+      "address": "0x0000000000000000000000000000000000000000",
+      "chain_id": "eip155:42161",
+      "derivation_path": "m/44'/60'/0'/0/0"
+    },
+    {
+      "account_id": "eip155:10:0x0000000000000000000000000000000000000000",
+      "address": "0x0000000000000000000000000000000000000000",
+      "chain_id": "eip155:10",
+      "derivation_path": "m/44'/60'/0'/0/0"
+    },
+    {
+      "account_id": "eip155:137:0x0000000000000000000000000000000000000000",
+      "address": "0x0000000000000000000000000000000000000000",
+      "chain_id": "eip155:137",
+      "derivation_path": "m/44'/60'/0'/0/0"
+    },
+    {
+      "account_id": "eip155:130:0x0000000000000000000000000000000000000000",
+      "address": "0x0000000000000000000000000000000000000000",
+      "chain_id": "eip155:130",
+      "derivation_path": "m/44'/60'/0'/0/0"
+    },
+    {
+      "account_id": "eip155:146:0x0000000000000000000000000000000000000000",
+      "address": "0x0000000000000000000000000000000000000000",
+      "chain_id": "eip155:146",
+      "derivation_path": "m/44'/60'/0'/0/0"
+    },
+    {
+      "account_id": "eip155:480:0x0000000000000000000000000000000000000000",
+      "address": "0x0000000000000000000000000000000000000000",
+      "chain_id": "eip155:480",
+      "derivation_path": "m/44'/60'/0'/0/0"
+    },
+    {
+      "account_id": "eip155:1329:0x0000000000000000000000000000000000000000",
+      "address": "0x0000000000000000000000000000000000000000",
+      "chain_id": "eip155:1329",
+      "derivation_path": "m/44'/60'/0'/0/0"
+    },
+    {
+      "account_id": "eip155:999:0x0000000000000000000000000000000000000000",
+      "address": "0x0000000000000000000000000000000000000000",
+      "chain_id": "eip155:999",
+      "derivation_path": "m/44'/60'/0'/0/0"
+    }
+  ],
+  "metadata": {
+    "purpose": "x402 paid API access via Circle Gateway across all 11 AIsa-accepted EVM mainnets.",
+    "descriptor_only": true,
+    "descriptor_only_note": "Capability declaration only — not a full OWS vault. The mnemonic is held in .env (OWS_MNEMONIC) per the legacy flow; the OWS-required `crypto` block is intentionally omitted. Migrate to ~/.ows/wallets/ via @open-wallet-standard/core for full compliance (encrypted vault, policy-gated signing, audit log).",
+    "template_address_note": "All `address` and `account_id` fields use the zero address (0x000…000) as a placeholder. Run `node scripts/setup.mjs address` to derive your real address from OWS_MNEMONIC; replace the zeros with that address (same value in all 11 entries — EOAs are address-stable across EVM chains).",
+    "gateway": {
+      "wallet_contract": "0x77777777Dcc4d5A8B6E418Fd04D8997ef11000eE",
+      "minter_contract": "0x2222222d7164433c4C09B0b0D809a9b52C04C205",
+      "rest_api_mainnet": "https://gateway-api.circle.com/v1/"
+    },
+    "chain_registry": "scripts/chains.mjs",
+    "ows_spec": "https://docs.openwallet.sh/"
+  }
+}
