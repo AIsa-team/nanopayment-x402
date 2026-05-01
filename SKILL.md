@@ -138,6 +138,7 @@ node scripts/setup.mjs balance --all
 | Gateway deposit < 0.5 USDC AND wallet ERC-20 USDC >= 5 | Run `node scripts/setup.mjs deposit --chain <key> --amount 5` (mainnet — confirm amount with user first) |
 | Gateway deposit < 0.5 USDC AND wallet ERC-20 USDC < 5 | Wallet underfunded on this chain. Show the user the wallet address (`node scripts/setup.mjs address`) and ask them to fund it on this chain (or to specify a different chain that already has USDC). No automated funding — there is no mainnet faucet. After they confirm a transfer, re-check balance. |
 | User wants to deposit across multiple chains in one shot | Run `node scripts/setup.mjs deposit-all --amount <usdc>` first (dry-run prints the plan), then re-run with `--execute` after user confirms. Mainnet — never auto-`--execute` without explicit user approval. |
+| Wallet has USDC on Base/OP/Arbitrum but no native ETH for gas | Use Eco's gasless path: `node scripts/deposit-via-eco.mjs --amount <usdc> --source <base\|optimism\|arbitrum>`. Dry-run by default — re-run with `--execute` after user confirms. Funds end up in Circle Gateway on Polygon, which AIsa accepts (`eip155:137`). Source chains are restricted; for other chains use the direct `setup.mjs deposit` path. |
 | Gateway deposit >= 0.5 USDC on any AIsa-accepted chain | Proceed (Gateway unifies balances across chains, so a deposit on any one of them can pay for an API call) |
 
 > **Warning:** Do NOT directly transfer USDC to the Gateway address. You must call `deposit()` or the funds will be lost.
@@ -325,6 +326,7 @@ After fixing any error, retry the original request once.
 | `scripts/save-mnemonic.mjs` | Persist mnemonic to local `.env` |
 | `scripts/chains.mjs` | Chain registry: 11 EVM mainnets + Arc Testnet (legacy). USDC/Gateway/RPC per chain. |
 | `scripts/setup.mjs` | Balance check, ERC-20 approve, Gateway deposit (per chain via `--chain`, or all chains via `deposit-all`) |
+| `scripts/deposit-via-eco.mjs` | Gasless Gateway deposit via Eco's programmable-address service. Use when the wallet has USDC on Base/OP/Arbitrum but no native gas there. |
 | `scripts/x402_client.mjs` | Make paid x402 API requests; matches server `accepts` against the chain registry |
 | `wallet.ows.json` | [OpenWallet Standard](https://docs.openwallet.sh/) `WalletDescriptor` listing the 11 EVM mainnet accounts. Capability declaration only; secret remains in `.env`. |
 | `references/endpoint-catalog.md` | All 104 endpoints with prices — authoritative source |

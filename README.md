@@ -60,6 +60,23 @@ node scripts/setup.mjs deposit-all --amount 5 --cap 50 --execute
 
 Behavior: dry-run by default; `--amount` is required (no implicit default); chains with insufficient USDC or zero native gas are skipped; chains with `allowance < amount` get an `approve` first (capped at `--cap` if provided, else unlimited). Mainnet — confirm the plan before passing `--execute`.
 
+### Gasless deposit (no native gas required) — via Eco
+
+If the wallet has USDC on Base / OP / Arbitrum but no native ETH on that chain, use [Eco's programmable-address service](https://eco.com/docs/getting-started/programmable-addresses/gateway-deposits) to deposit gaslessly. The user signs a USDC ERC-3009 `transferWithAuthorization`; Eco's deposit-address service eats source-chain gas, routes via CCTP, and credits the user's Circle Gateway balance on Polygon. AIsa accepts payments from Polygon Gateway (`eip155:137`).
+
+```bash
+# Plan: generates the Eco deposit address, shows the destination, no signing.
+node scripts/deposit-via-eco.mjs --amount 5 --source base
+
+# Test against Eco's preproduction (Base Sepolia → Polygon Amoy):
+node scripts/deposit-via-eco.mjs --amount 5 --source baseSepolia --env preproduction --execute
+
+# Execute on mainnet (real USDC):
+node scripts/deposit-via-eco.mjs --amount 5 --source base --execute
+```
+
+Constraints: source chains limited to `base`, `optimism`, `arbitrum` (mainnet) or their Sepolias (preproduction). Destination is Polygon Gateway only. For other source chains, fall back to direct `setup.mjs deposit --chain <key>` (requires native gas). Adds a hard dependency on `deposit-addresses.eco.com` for the duration of the deposit; failed intents are refunded by an independent permissionless service after ~4 hours.
+
 ### Wallet descriptor
 
 [`wallet.ows.json`](./wallet.ows.json) is an [OpenWallet Standard](https://docs.openwallet.sh/) `WalletDescriptor` declaring the 11 EVM mainnet accounts this wallet uses. It's a *capability declaration*, not a full OWS vault — the mnemonic still lives in `.env` (`OWS_MNEMONIC`), and the OWS-required `crypto` block is intentionally omitted. To upgrade to a real encrypted vault under `~/.ows/`, install [`@open-wallet-standard/core`](https://www.npmjs.com/package/@open-wallet-standard/core) and import the mnemonic — see the [storage spec](https://docs.openwallet.sh/doc.html?slug=01-storage-format).
