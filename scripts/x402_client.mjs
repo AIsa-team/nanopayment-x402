@@ -65,12 +65,26 @@ class GatewayEvmScheme {
         .join("");
     const now = Math.floor(Date.now() / 1000);
 
+    // Circle's batched x402 facilitator requires the authorization to be valid
+    // for at least ~7 days, regardless of the (smaller) `maxTimeoutSeconds`
+    // the seller advertises. Falling short triggers a misleadingly-named
+    // `authorization_validity_too_short` rejection. We use 8 days to clear
+    // Circle's reference value (7 days, see @circle-fin/x402-batching v3.0.3
+    // GATEWAY_MIN_AUTH_VALIDITY_SECONDS in dist/client/index.mjs) plus a
+    // ~1-day cushion for clock skew between client and the central facilitator
+    // — empirically 7 days exactly was rejected against api.aisa.one,
+    // 8 days passed.
+    const GATEWAY_MIN_AUTH_VALIDITY_SECONDS = 8 * 24 * 60 * 60;
+    const validityWindowSeconds = Math.max(
+      paymentRequirements.maxTimeoutSeconds,
+      GATEWAY_MIN_AUTH_VALIDITY_SECONDS,
+    );
     const authorization = {
       from: this.signer.address,
       to: getAddress(paymentRequirements.payTo),
       value: paymentRequirements.amount,
       validAfter: (now - 600).toString(),
-      validBefore: (now + paymentRequirements.maxTimeoutSeconds).toString(),
+      validBefore: (now + validityWindowSeconds).toString(),
       nonce,
     };
 

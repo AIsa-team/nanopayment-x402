@@ -62,12 +62,17 @@ class LoggingGatewayEvmScheme {
         .join("");
     const now = Math.floor(Date.now() / 1000);
 
+    const GATEWAY_MIN_AUTH_VALIDITY_SECONDS = 8 * 24 * 60 * 60;  // see x402_client.mjs for rationale
+    const validityWindowSeconds = Math.max(
+      paymentRequirements.maxTimeoutSeconds,
+      GATEWAY_MIN_AUTH_VALIDITY_SECONDS,
+    );
     const authorization = {
       from: this.signer.address,
       to: getAddress(paymentRequirements.payTo),
       value: paymentRequirements.amount,
       validAfter: (now - 600).toString(),
-      validBefore: (now + paymentRequirements.maxTimeoutSeconds).toString(),
+      validBefore: (now + validityWindowSeconds).toString(),
       nonce,
     };
 
