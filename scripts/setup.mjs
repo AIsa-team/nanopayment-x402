@@ -173,6 +173,27 @@ async function approveGateway(walletClient, publicClient, chain, capUsdc) {
   return receipt;
 }
 
+/**
+ * After an `approve` tx is mined, public RPC providers can take a few seconds
+ * to propagate the new state across all their backend nodes. viem's pre-flight
+ * simulation for the next write may hit a stale node and revert with
+ * "exceeds allowance" even though the approve succeeded. Poll `allowance` here
+ * until it reflects the expected value before proceeding.
+ */
+async function waitForAllowance(publicClient, chain, owner, spender, minAmount, { maxAttempts = 20, intervalMs = 500 } = {}) {
+  for (let i = 0; i < maxAttempts; i++) {
+    const current = await publicClient.readContract({
+      address: chain.usdc,
+      abi: ERC20_ABI,
+      functionName: "allowance",
+      args: [owner, spender],
+    });
+    if (current >= minAmount) return current;
+    await new Promise((r) => setTimeout(r, intervalMs));
+  }
+  throw new Error(`allowance for ${spender} did not reach ${minAmount} within ${maxAttempts * intervalMs}ms — RPC propagation may be slow, retry shortly.`);
+}
+
 async function depositToGateway(walletClient, publicClient, chain, amountUsdc) {
   const amount = BigInt(Math.round(amountUsdc * 1e6));
   console.log(`Depositing ${amountUsdc} USDC into Gateway on ${chain.name}...`);
@@ -287,6 +308,9 @@ async function depositAll(mnemonic, account, { amountUsdc, capUsdc, execute }) {
     try {
       if (row._needsApprove) {
         await approveGateway(walletClient, publicClient, chain, capUsdc);
+        process.stdout.write("  Waiting for allowance to propagate...");
+        await waitForAllowance(publicClient, chain, account.address, chain.gatewayWallet, amount);
+        console.log(" ok.");
       }
       const receipt = await depositToGateway(walletClient, publicClient, chain, amountUsdc);
       results.push({ chain: chain.name, status: "ok", tx: receipt.transactionHash });
@@ -455,12 +479,21 @@ Notes:
     case "all": {
       console.log("--- Step 1: Check initial balance ---");
       const { allowance } = await showBalanceOne(chain, account.address);
+      const requiredAmount = BigInt(Math.round(amount * 1e6));
+      let justApproved = false;
 
-      if (allowance === 0n) {
+      if (allowance < requiredAmount) {
         console.log("\n--- Step 2: Approve Gateway ---");
         await approveGateway(walletClient, publicClient, chain, cap);
+        justApproved = true;
       } else {
-        console.log("\n--- Step 2: Approve Gateway (already approved) ---");
+        console.log("\n--- Step 2: Approve Gateway (sufficient allowance already) ---");
+      }
+
+      if (justApproved) {
+        process.stdout.write("  Waiting for allowance to propagate across RPC nodes...");
+        await waitForAllowance(publicClient, chain, account.address, chain.gatewayWallet, requiredAmount);
+        console.log(" ok.");
       }
 
       console.log(`\n--- Step 3: Deposit ${amount} USDC ---`);
